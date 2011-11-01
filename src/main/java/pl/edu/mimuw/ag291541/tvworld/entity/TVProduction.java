@@ -6,6 +6,10 @@ import java.util.Date;
 public abstract class TVProduction {
 	private Long id;
 	private Collection<Date> airingDate;
+	/**
+	 * TV workers related to the production, besides actors and reporters.
+	 */
+	private Collection<TVWorker> staff;
 
 	public Long getId() {
 		return id;
@@ -21,5 +25,13 @@ public abstract class TVProduction {
 
 	public void setAiringDate(Collection<Date> airingDate) {
 		this.airingDate = airingDate;
+	}
+
+	public Collection<TVWorker> getStaff() {
+		return staff;
+	}
+
+	public void setStaff(Collection<TVWorker> staff) {
+		this.staff = staff;
 	}
 }

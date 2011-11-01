@@ -4,10 +4,9 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="pl.edu.mimuw.ag291541.tvworld.entity">
 	<class name="TVWorker" schema="public" table="tvworker">
-		<id name="identity" column="person_id">
-			<generator class="native" />
-		</id>
-		<property name="name" column="person_name" />
-		<property name="surname" column="person_surname" />
+		<composite-id>
+			<key-many-to-one name="identity" column="tvworker_identity"></key-many-to-one>
+			<key-many-to-one name="employer" column="tvworker_employer"></key-many-to-one>
+		</composite-id>
 	</class>
 </hibernate-mapping>
