@@ -2,9 +2,19 @@ package pl.edu.mimuw.ag291541.tvworld.entity;
 
 public class Episode {
 	private Long id;
-	private TVSeries series;
+	private TVSeries tvSeries;
 	private long season;
 	private long number;
+
+	public Episode() {
+
+	}
+
+	public Episode(TVSeries tvSeries, long season, long number) {
+		this.tvSeries = tvSeries;
+		this.season = season;
+		this.number = number;
+	}
 
 	public Long getId() {
 		return id;
@@ -14,12 +24,12 @@ public class Episode {
 		this.id = id;
 	}
 
-	public TVSeries getSeries() {
-		return series;
+	public TVSeries getTvSeries() {
+		return tvSeries;
 	}
 
-	public void setSeries(TVSeries series) {
-		this.series = series;
+	public void setTvSeries(TVSeries tvSeries) {
+		this.tvSeries = tvSeries;
 	}
 
 	public long getSeason() {

@@ -1,6 +1,7 @@
 package pl.edu.mimuw.ag291541.tvworld.entity;
 
-import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Represents a single part of the news TV production.
@@ -10,6 +11,10 @@ import java.util.Collection;
  */
 public class Reportage {
 	private Long id;
+	/**
+	 * All the authors of the reportage.
+	 */
+	private Set<Reporter> reporters = new TreeSet<Reporter>();
 	private String subject;
 	/**
 	 * A transcription of the reportage.
@@ -18,7 +23,16 @@ public class Reportage {
 	/**
 	 * All the news TV productions that include this reportage.
 	 */
-	private Collection<News> occurrences;
+	private Set<News> occurrences = new TreeSet<News>();
+
+	public Reportage() {
+
+	}
+
+	public Reportage(String subject, String content) {
+		this.subject = subject;
+		this.content = content;
+	}
 
 	public Long getId() {
 		return id;
@@ -26,6 +40,14 @@ public class Reportage {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Set<Reporter> getReporters() {
+		return reporters;
+	}
+
+	public void setReporters(Set<Reporter> reporters) {
+		this.reporters = reporters;
 	}
 
 	public String getSubject() {
@@ -44,11 +66,11 @@ public class Reportage {
 		this.content = content;
 	}
 
-	public Collection<News> getOccurrences() {
+	public Set<News> getOccurrences() {
 		return occurrences;
 	}
 
-	public void setOccurrences(Collection<News> occurrences) {
+	public void setOccurrences(Set<News> occurrences) {
 		this.occurrences = occurrences;
 	}
 }

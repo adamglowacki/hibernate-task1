@@ -3,11 +3,14 @@
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="pl.edu.mimuw.ag291541.tvworld.entity">
-	<class name="Person" schema="public" table="person">
-		<id name="id" column="person_id">
+	<class name="TVStation" schema="public" table="tvstation">
+		<id name="id" column="tvstation_id">
 			<generator class="native" />
 		</id>
-		<property name="name" column="person_name" />
-		<property name="surname" column="person_surname" />
+		<property name="name" column="tvstation_name" />
+		<set name="workers" table="tvworker">
+			<key column="tvworker_employer" />
+			<one-to-many class="TVWorker" />
+		</set>
 	</class>
 </hibernate-mapping>

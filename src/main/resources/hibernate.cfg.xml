@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+	<session-factory>
+		<!-- <property name="connection.driver_class">org.hsqldb.jdbcDriver</property> 
+			<property name="connection.url">jdbc:hsqldb:file:/tmp/testDB;shutdown=true</property> 
+			<property name="connection.username">sa</property> <property name="connection.password"></property> 
+			<property name="dialect">org.hibernate.dialect.HSQLDialect</property> -->
+
+		<property name="connection.driver_class">org.postgresql.Driver</property>
+		<property name="connection.username">hibernate</property>
+		<property name="connection.password">hibernate</property>
+		<property name="default_schema">public</property>
+		<property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+		<property name="connection.url">jdbc:postgresql://localhost/postgres</property>
+
+		<!-- JDBC connection pool (use the built-in) -->
+		<!-- <property name="connection.pool_size">100</property> -->
+		<!-- JDBC connection pool (use c3p0) -->
+		<property name="c3p0.min_size">5</property>
+		<property name="c3p0.max_size">20</property>
+		<property name="c3p0.timeout">1800</property>
+		<property name="c3p0.max_statements">50</property>
+
+		<!-- Enable Hibernate's automatic session context management -->
+		<property name="current_session_context_class">thread</property>
+
+		<!-- Disable the second-level cache -->
+		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+
+		<!-- Echo all executed SQL to stdout -->
+		<property name="show_sql">true</property>
+
+		<!-- Drop and re-create the database schema on startup -->
+		<property name="hbm2ddl.auto">update</property>
+
+		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/Episode.hbm.xml" />
+		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/Person.hbm.xml" />
+		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/Reportage.hbm.xml" />
+		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/TVProduction.hbm.xml" />
+		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/TVStation.hbm.xml" />
+		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/TVWorker.hbm.xml" />
+	</session-factory>
+</hibernate-configuration>

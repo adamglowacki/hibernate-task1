@@ -1,12 +1,33 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="pl.edu.mimuw.ag291541.tvworld.entity">
 	<class name="TVWorker" schema="public" table="tvworker">
 		<composite-id>
 			<key-many-to-one name="identity" column="tvworker_identity"></key-many-to-one>
 			<key-many-to-one name="employer" column="tvworker_employer"></key-many-to-one>
 		</composite-id>
+		<discriminator column="tvworker_type" type="string" />
+		<subclass name="Reporter" discriminator-value="reporter">
+			<property name="speciality" column="reporter_speciality" />
+			<set name="reportages" table="reporter_reportage">
+				<key>
+					<column name="tvworker_identity" />
+					<column name="tvworker_employer" />
+				</key>
+				<many-to-many class="Reportage" column="reportage_id" />
+			</set>
+		</subclass>
+		<subclass name="Actor" discriminator-value="actor">
+			<property name="rating" column="actor_rating" />
+			<set name="episodes" table="actor_episode">
+				<key>
+					<column name="tvworker_identity" />
+					<column name="tvworker_employer" />
+				</key>
+				<many-to-many class="Episode" column="episode_id" />
+			</set>
+		</subclass>
 	</class>
 </hibernate-mapping>

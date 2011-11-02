@@ -1,15 +1,16 @@
 package pl.edu.mimuw.ag291541.tvworld.entity;
 
-import java.util.Collection;
 import java.util.Date;
+import java.util.Set;
+import java.util.TreeSet;
 
 public abstract class TVProduction {
 	private Long id;
-	private Collection<Date> airingDate;
+	private Set<Date> airingDate = new TreeSet<Date>();
 	/**
 	 * TV workers related to the production, besides actors and reporters.
 	 */
-	private Collection<TVWorker> staff;
+	private Set<TVWorker> staff = new TreeSet<TVWorker>();
 
 	public Long getId() {
 		return id;
@@ -19,19 +20,19 @@ public abstract class TVProduction {
 		this.id = id;
 	}
 
-	public Collection<Date> getAiringDate() {
+	public Set<Date> getAiringDate() {
 		return airingDate;
 	}
 
-	public void setAiringDate(Collection<Date> airingDate) {
+	public void setAiringDate(Set<Date> airingDate) {
 		this.airingDate = airingDate;
 	}
 
-	public Collection<TVWorker> getStaff() {
+	public Set<TVWorker> getStaff() {
 		return staff;
 	}
 
-	public void setStaff(Collection<TVWorker> staff) {
+	public void setStaff(Set<TVWorker> staff) {
 		this.staff = staff;
 	}
 }

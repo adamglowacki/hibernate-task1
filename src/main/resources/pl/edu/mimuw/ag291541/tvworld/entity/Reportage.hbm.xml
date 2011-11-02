@@ -1,12 +1,19 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="pl.edu.mimuw.ag291541.tvworld.entity">
 	<class name="Reportage" schema="public" table="reportage">
 		<id name="id" column="reportage_id">
 			<generator class="native" />
 		</id>
+		<set name="reporters" table="reporter_reportage" inverse="true">
+			<key column="reportage_id" />
+			<many-to-many class="Reporter">
+				<column name="tvworker_identity" />
+				<column name="tvworker_employer" />
+			</many-to-many>
+		</set>
 		<property name="subject" column="reportage_subject" />
 		<property name="content" column="reportage_content" />
 		<set name="occurrences" table="reportage_news">

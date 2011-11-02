@@ -1,0 +1,21 @@
+package pl.edu.mimuw.ag291541.tvworld.dao.util;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
+public class HibernateUtil {
+	private static final SessionFactory sessionFactory = buildSessionFactory();
+
+	private static SessionFactory buildSessionFactory() {
+		return new Configuration().configure().buildSessionFactory();
+	}
+
+	public static SessionFactory getSessionFactory() {
+		return sessionFactory;
+	}
+
+	public static Session getCurrentSession() {
+		return getSessionFactory().getCurrentSession();
+	}
+}
