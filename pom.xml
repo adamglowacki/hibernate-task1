@@ -41,6 +41,12 @@
 			<version>${hibernate.version}</version>
 		</dependency>
 
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-envers</artifactId>
+      <version>${hibernate.version}</version>
+    </dependency>
+
 		<!-- Hibernate uses slf4j for logging, for our purposes here use the simple 
 			backend -->
 		<dependency>

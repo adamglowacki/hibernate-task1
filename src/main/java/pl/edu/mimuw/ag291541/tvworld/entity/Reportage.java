@@ -3,12 +3,15 @@ package pl.edu.mimuw.ag291541.tvworld.entity;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.hibernate.envers.Audited;
+
 /**
  * Represents a single part of the news TV production.
  * 
  * @author adas
  * 
  */
+@Audited
 public class Reportage {
 	private Long id;
 	/**
