@@ -23,7 +23,8 @@ public class Actor extends TVWorker {
 
 	}
 
-	public Actor(ActorRating rating) {
+	public Actor(Person person, ActorRating rating, TVStation employer) {
+		super(person, employer);
 		this.rating = rating;
 	}
 

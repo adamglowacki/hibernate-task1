@@ -11,13 +11,13 @@ import java.util.TreeSet;
  * @author adas
  * 
  */
-public class TVStation {
+public class TVStation implements Comparable<TVStation> {
 	private Long id;
 	private String name;
 	private Set<TVWorker> workers = new TreeSet<TVWorker>();
-	
+
 	public TVStation() {
-		
+
 	}
 
 	public TVStation(String name) {
@@ -71,5 +71,10 @@ public class TVStation {
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
+	}
+
+	@Override
+	public int compareTo(TVStation o) {
+		return getId().compareTo(o.getId());
 	}
 }

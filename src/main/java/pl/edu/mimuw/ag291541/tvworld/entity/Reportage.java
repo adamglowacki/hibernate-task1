@@ -12,7 +12,7 @@ import org.hibernate.envers.Audited;
  * 
  */
 @Audited
-public class Reportage {
+public class Reportage implements Comparable<Reportage> {
 	private Long id;
 	/**
 	 * All the authors of the reportage.
@@ -75,5 +75,10 @@ public class Reportage {
 
 	public void setOccurrences(Set<News> occurrences) {
 		this.occurrences = occurrences;
+	}
+
+	@Override
+	public int compareTo(Reportage o) {
+		return getId().compareTo(o.getId());
 	}
 }

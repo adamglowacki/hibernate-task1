@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @author adas
  * 
  */
-public class TVWorker implements Serializable {
+public class TVWorker implements Serializable, Comparable<TVWorker> {
 	private static final long serialVersionUID = -6590695431871353445L;
 	private Person identity;
 	private TVStation employer;
@@ -74,5 +74,16 @@ public class TVWorker implements Serializable {
 		} else if (!identity.equals(other.identity))
 			return false;
 		return true;
+	}
+
+	@Override
+	public int compareTo(TVWorker o) {
+		int idCmp = getIdentity().compareTo(o.getIdentity());
+		int empCmp = getEmployer().compareTo(o.getEmployer());
+		if (idCmp != 0) /* non-equal identities */
+			return idCmp;
+		else
+			/* identical identities, compare by employers */
+			return empCmp;
 	}
 }

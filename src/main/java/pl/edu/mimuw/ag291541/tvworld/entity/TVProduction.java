@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
-public abstract class TVProduction {
+public abstract class TVProduction implements Comparable<TVProduction> {
 	private Long id;
 	private Set<Date> airingDate = new TreeSet<Date>();
 	/**
@@ -34,5 +34,10 @@ public abstract class TVProduction {
 
 	public void setStaff(Set<TVWorker> staff) {
 		this.staff = staff;
+	}
+
+	@Override
+	public int compareTo(TVProduction o) {
+		return getId().compareTo(o.getId());
 	}
 }

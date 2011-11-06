@@ -6,7 +6,7 @@ package pl.edu.mimuw.ag291541.tvworld.entity;
  * @author adas
  * 
  */
-public class Person {
+public class Person implements Comparable<Person> {
 	private Long id;
 	private String name;
 	private String surname;
@@ -66,5 +66,10 @@ public class Person {
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
+	}
+
+	@Override
+	public int compareTo(Person o) {
+		return getId().compareTo(o.getId());
 	}
 }

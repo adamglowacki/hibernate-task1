@@ -23,7 +23,9 @@ public class Reporter extends TVWorker {
 
 	}
 
-	public Reporter(ReporterSpeciality speciality) {
+	public Reporter(Person person, ReporterSpeciality speciality,
+			TVStation employer) {
+		super(person, employer);
 		this.speciality = speciality;
 	}
 

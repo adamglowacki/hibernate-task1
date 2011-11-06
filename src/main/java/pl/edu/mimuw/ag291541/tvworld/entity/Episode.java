@@ -1,6 +1,6 @@
 package pl.edu.mimuw.ag291541.tvworld.entity;
 
-public class Episode {
+public class Episode implements Comparable<Episode> {
 	private Long id;
 	private TVSeries tvSeries;
 	private long season;
@@ -46,5 +46,10 @@ public class Episode {
 
 	public void setNumber(long number) {
 		this.number = number;
+	}
+
+	@Override
+	public int compareTo(Episode o) {
+		return getId().compareTo(o.getId());
 	}
 }
