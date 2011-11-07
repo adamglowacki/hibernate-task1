@@ -7,7 +7,8 @@
 		<id name="id" column="episode_id">
 			<generator class="native" />
 		</id>
-		<many-to-one name="tvSeries" column="episode_tvseries" />
+		<many-to-one name="tvSeries" column="episode_tvseries"
+			foreign-key="tvseries_fk" />
 		<property name="season" column="episode_season" />
 		<property name="number" column="episode_number" />
 	</class>

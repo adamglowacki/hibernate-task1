@@ -17,8 +17,8 @@
 		<property name="subject" column="reportage_subject" />
 		<property name="content" column="reportage_content" />
 		<set name="occurrences" table="reportage_news">
-			<key column="reportage_id" />
-			<many-to-many class="News" column="news_id" />
+			<key column="reportage_id" foreign-key="reportage_fk" />
+			<many-to-many class="News" column="news_id" foreign-key="news_fk" />
 		</set>
 	</class>
 </hibernate-mapping>

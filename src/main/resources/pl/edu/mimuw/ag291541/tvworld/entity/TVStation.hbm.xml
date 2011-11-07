@@ -8,8 +8,8 @@
 			<generator class="native" />
 		</id>
 		<property name="name" column="tvstation_name" />
-		<set name="workers" table="tvworker">
-			<key column="tvworker_employer" />
+		<set name="workers" table="tvworker" inverse="true">
+			<key column="tvworker_employer" foreign-key="tvstation_fk" />
 			<one-to-many class="TVWorker" />
 		</set>
 	</class>

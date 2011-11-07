@@ -16,9 +16,15 @@
 		<property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
 		<property name="connection.url">jdbc:postgresql://localhost/postgres</property>
 
-		<property name="ejb.event.post-insert">org.hibernate.ejb.event.EJB3PostInsertEventListener,org.hibernate.envers.event.AuditEventListener</property>
-		<property name="ejb.event.post-update">org.hibernate.ejb.event.EJB3PostUpdateEventListener,org.hibernate.envers.event.AuditEventListener</property>
-		<property name="ejb.event.post-delete">org.hibernate.ejb.event.EJB3PostDeleteEventListener,org.hibernate.envers.event.AuditEventListener</property>
+		<property name="ejb.event.post-insert">
+			org.hibernate.ejb.event.EJB3PostInsertEventListener
+			org.hibernate.envers.event.AuditEventListener</property>
+		<property name="ejb.event.post-update">
+			org.hibernate.ejb.event.EJB3PostUpdateEventListener
+			org.hibernate.envers.event.AuditEventListener</property>
+		<property name="ejb.event.post-delete">
+			org.hibernate.ejb.event.EJB3PostDeleteEventListener
+			org.hibernate.envers.event.AuditEventListener</property>
 		<property name="ejb.event.pre-collection-update">org.hibernate.envers.event.AuditEventListener</property>
 		<property name="ejb.event.pre-collection-remove">org.hibernate.envers.event.AuditEventListener</property>
 		<property name="ejb.event.pre-collection-recreate">org.hibernate.envers.event.AuditEventListener</property>

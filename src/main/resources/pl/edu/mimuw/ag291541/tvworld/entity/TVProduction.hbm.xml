@@ -8,27 +8,28 @@
 			<generator class="native" />
 		</id>
 		<set name="airingDate" table="tvproduction_airingdate">
-			<key column="tvproduction_id" />
+			<key column="tvproduction_id" foreign-key="tvproduction_fk" />
 			<element column="tvproduction_airingdate" type="timestamp" />
 		</set>
 		<set name="staff" table="tvproduction_tvworker">
-			<key column="tvproduction_id" />
-			<many-to-many class="TVWorker" unique="true">
+			<key column="tvproduction_id" foreign-key="tvproduction_fk" />
+			<many-to-many class="TVWorker" unique="true"
+				foreign-key="tvworker_fk">
 				<column name="tvworker_identity" />
 				<column name="tvworker_employer" />
 			</many-to-many>
 		</set>
 		<joined-subclass name="TVSeries" table="tvseries">
-			<key column="tvseries_tvproduction" />
+			<key column="tvseries_tvproduction" foreign-key="tvproduction_fk" />
 			<property name="title" column="tvseries_title" />
 			<set name="episodes" table="tvseries_episode">
-				<key column="tvseries_id" />
+				<key column="tvseries_id" foreign-key="tvseries_fk" />
 				<many-to-many class="Episode" column="episode_id"
-					unique="true" />
+					unique="true" foreign-key="episode_fk" />
 			</set>
 		</joined-subclass>
 		<joined-subclass name="News">
-			<key column="news_tvproduction" />
+			<key column="tvproduction_id" foreign-key="tvproduction_fk" />
 			<property name="audience" />
 			<set name="reportages" table="reportage_news" inverse="true">
 				<key column="news_id" />

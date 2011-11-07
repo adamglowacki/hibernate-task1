@@ -6,8 +6,11 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Property;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -91,13 +94,18 @@ public class ConfigurationTest {
 		session.save(role2);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void simpleEnversTest() {
+		final String INITIAL_REPORTAGE2_CONTENT = "Któż to wie?";
+		final String SECOND_REPORTAGE2_CONTENT = INITIAL_REPORTAGE2_CONTENT
+				+ " Tu byłem.";
 		Reportage reportage1 = new Reportage(
 				"Zielone marchewki",
 				"Wszyscy uważają, że zielone marchewki są niezdrowe. Pewnie dlatego nikt ich nie je.");
 		Reportage reportage2 = new Reportage(
-				"Dlaczego zielone marchewki są niezdrowe?", "Któż to wie?");
+				"Dlaczego zielone marchewki są niezdrowe?",
+				INITIAL_REPORTAGE2_CONTENT);
 		final String andrewName = "Andrew";
 		final String andrewSurname = "Bolognese";
 		final String joannaName = "Joanna";
@@ -109,9 +117,6 @@ public class ConfigurationTest {
 				ReporterSpeciality.GARDENING_SHOW, oldStation);
 		Reporter joannaReporter = new Reporter(joanna,
 				ReporterSpeciality.TALK_SHOW, oldStation);
-		andrewReporter.getReportages().add(reportage1);
-		joannaReporter.getReportages().add(reportage2);
-		andrewReporter.getReportages().add(reportage2);
 		session.save(oldStation);
 		session.save(andrew);
 		session.save(andrewReporter);
@@ -119,23 +124,48 @@ public class ConfigurationTest {
 		session.save(joannaReporter);
 		session.save(reportage1);
 		Long rep2id = (Long) session.save(reportage2);
-		/* reopening transaction */
+		andrewReporter.getReportages().add(reportage1);
+		joannaReporter.getReportages().add(reportage2);
+		andrewReporter.getReportages().add(reportage2);
+
+		tryToReopenTransaction();
+
+		logInfo((List<Reportage>) session.createCriteria(Reportage.class)
+				.add(Property.forName("id").eq(rep2id)).list());
+		logInfo((List<Reportage>) session.createCriteria(Reportage.class)
+				.list());
+		Reportage rep2 = (Reportage) session.createCriteria(Reportage.class)
+				.add(Property.forName("id").eq(rep2id)).uniqueResult();
+		rep2.setContent(SECOND_REPORTAGE2_CONTENT);
+
+		tryToReopenTransaction();
+
+		AuditReader auditReader = AuditReaderFactory.get(session);
+		Reportage rep2v1 = auditReader.find(Reportage.class, 2L, 1);
+		Reportage rep2v2 = auditReader.find(Reportage.class, 2L, 2);
+		Assert.assertTrue("First reportage revision has an invalid content.",
+				rep2v1.getContent().equals(INITIAL_REPORTAGE2_CONTENT));
+		Assert.assertTrue("Second reportage revision has an invalid content.",
+				rep2v2.getContent().equals(SECOND_REPORTAGE2_CONTENT));
+	}
+
+	private void tryToReopenTransaction() {
 		commitTransaction();
 		getSessionAndBeginTransaction();
-		/* --- */
-		@SuppressWarnings("unchecked")
-		List<Reportage> reportages = (List<Reportage>) session.createCriteria(
-				Reportage.class).add(Property.forName("id").eq(rep2id));
-		for (Reportage r : reportages) {
+	}
+
+	private void logInfo(List<Reportage> reportages) {
+		for (Reportage reportage : reportages) {
 			StringBuilder reporters = new StringBuilder("|");
-			for (Reporter rr : r.getReporters())
-				reporters.append(rr.getIdentity().getName()).append(" ")
-						.append(rr.getIdentity().getSurname()).append("|");
+			for (Reporter reporter : reportage.getReporters())
+				reporters.append(reporter.getIdentity().getName()).append(" ")
+						.append(reporter.getIdentity().getSurname())
+						.append("|");
 			StringBuilder occurrences = new StringBuilder("|");
-			for (News n : r.getOccurrences())
-				occurrences.append(n.getAudience()).append("|");
-			logger.info(r.getSubject() + " by " + reporters.toString() + " at "
-					+ occurrences.toString());
+			for (News news : reportage.getOccurrences())
+				occurrences.append(news.getId()).append("|");
+			logger.info(reportage.getSubject() + " by " + reporters + " at "
+					+ occurrences);
 		}
 	}
 }
