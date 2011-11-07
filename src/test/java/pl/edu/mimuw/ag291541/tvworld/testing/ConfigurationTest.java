@@ -2,7 +2,6 @@ package pl.edu.mimuw.ag291541.tvworld.testing;
 
 import java.util.List;
 
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Property;
 import org.hibernate.envers.AuditReader;

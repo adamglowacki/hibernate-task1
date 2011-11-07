@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 /**
  * Represents a single part of the news TV production.
@@ -11,7 +12,7 @@ import org.hibernate.envers.Audited;
  * @author adas
  * 
  */
-@Audited
+@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 public class Reportage implements Comparable<Reportage> {
 	private Long id;
 	/**

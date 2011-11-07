@@ -14,7 +14,7 @@
 		<discriminator column="tvworker_type" type="string" />
 		<subclass name="Reporter" discriminator-value="reporter">
 			<property name="speciality" column="reporter_speciality" />
-			<set name="reportages" table="reporter_reportage">
+			<set name="reportages" table="reporter_reportage" inverse="true">
 				<key foreign-key="tvworker_fk">
 					<column name="tvworker_identity" />
 					<column name="tvworker_employer" />

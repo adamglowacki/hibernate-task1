@@ -16,19 +16,6 @@
 		<property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
 		<property name="connection.url">jdbc:postgresql://localhost/postgres</property>
 
-		<property name="ejb.event.post-insert">
-			org.hibernate.ejb.event.EJB3PostInsertEventListener
-			org.hibernate.envers.event.AuditEventListener</property>
-		<property name="ejb.event.post-update">
-			org.hibernate.ejb.event.EJB3PostUpdateEventListener
-			org.hibernate.envers.event.AuditEventListener</property>
-		<property name="ejb.event.post-delete">
-			org.hibernate.ejb.event.EJB3PostDeleteEventListener
-			org.hibernate.envers.event.AuditEventListener</property>
-		<property name="ejb.event.pre-collection-update">org.hibernate.envers.event.AuditEventListener</property>
-		<property name="ejb.event.pre-collection-remove">org.hibernate.envers.event.AuditEventListener</property>
-		<property name="ejb.event.pre-collection-recreate">org.hibernate.envers.event.AuditEventListener</property>
-
 		<!-- JDBC connection pool (use c3p0) -->
 		<property name="c3p0.min_size">5</property>
 		<property name="c3p0.max_size">20</property>
@@ -53,5 +40,18 @@
 		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/TVProduction.hbm.xml" />
 		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/TVStation.hbm.xml" />
 		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/TVWorker.hbm.xml" />
+
+		<listener class="org.hibernate.envers.event.AuditEventListener"
+			type="post-insert" />
+		<listener class="org.hibernate.envers.event.AuditEventListener"
+			type="post-update" />
+		<listener class="org.hibernate.envers.event.AuditEventListener"
+			type="post-delete" />
+		<listener class="org.hibernate.envers.event.AuditEventListener"
+			type="pre-collection-update" />
+		<listener class="org.hibernate.envers.event.AuditEventListener"
+			type="pre-collection-remove" />
+		<listener class="org.hibernate.envers.event.AuditEventListener"
+			type="post-collection-recreate" />
 	</session-factory>
 </hibernate-configuration>
