@@ -33,7 +33,7 @@
 		<joined-subclass name="News">
 			<key column="tvproduction_id" foreign-key="tvproduction_fk" />
 			<property name="audience" />
-			<set name="reportages" table="reportage_news" inverse="true">
+			<set name="reportages" table="reportage_news">
 				<key column="news_id" />
 				<many-to-many class="Reportage" column="reportage_id" />
 			</set>

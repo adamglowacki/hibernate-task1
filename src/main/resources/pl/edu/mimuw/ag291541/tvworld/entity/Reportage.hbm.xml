@@ -7,19 +7,8 @@
 		<id name="id" column="reportage_id">
 			<generator class="native" />
 		</id>
-		<set name="reporters" table="reporter_reportage">
-			<key column="reportage_id" />
-			<many-to-many class="Reporter">
-				<column name="tvworker_identity" />
-				<column name="tvworker_employer" />
-			</many-to-many>
-		</set>
 		<property name="subject" column="reportage_subject" unique="true"
 			unique-key="reportage_subject_index" />
 		<property name="content" column="reportage_content" />
-		<set name="occurrences" table="reportage_news">
-			<key column="reportage_id" foreign-key="reportage_fk" />
-			<many-to-many class="News" column="news_id" foreign-key="news_fk" />
-		</set>
 	</class>
 </hibernate-mapping>

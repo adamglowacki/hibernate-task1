@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.edu.mimuw.ag291541.tvworld.dao.util.HibernateUtil;
-import pl.edu.mimuw.ag291541.tvworld.entity.News;
 import pl.edu.mimuw.ag291541.tvworld.entity.Person;
 import pl.edu.mimuw.ag291541.tvworld.entity.Reportage;
 import pl.edu.mimuw.ag291541.tvworld.entity.Reporter;
@@ -140,8 +139,14 @@ public class ConfigurationTest {
 
 		AuditReader auditReader = AuditReaderFactory.get(sessionFactory
 				.getCurrentSession());
-		Reportage rep2v1 = auditReader.find(Reportage.class, 2L, 1);
-		Reportage rep2v2 = auditReader.find(Reportage.class, 2L, 2);
+		List<Number> rep2revs = auditReader.getRevisions(Reportage.class,
+				rep2id);
+		Assert.assertTrue("Not enough reportage revisions found.",
+				rep2revs.size() >= 2);
+		Reportage rep2v1 = auditReader.find(Reportage.class, rep2id,
+				rep2revs.get(rep2revs.size() - 2));
+		Reportage rep2v2 = auditReader.find(Reportage.class, rep2id,
+				rep2revs.get(rep2revs.size() - 1));
 		Assert.assertTrue("First reportage revision has an invalid content.",
 				rep2v1.getContent().equals(INITIAL_REPORTAGE2_CONTENT));
 		Assert.assertTrue("Second reportage revision has an invalid content.",
@@ -155,16 +160,7 @@ public class ConfigurationTest {
 
 	private void logInfo(List<Reportage> reportages) {
 		for (Reportage reportage : reportages) {
-			StringBuilder reporters = new StringBuilder("|");
-			for (Reporter reporter : reportage.getReporters())
-				reporters.append(reporter.getIdentity().getName()).append(" ")
-						.append(reporter.getIdentity().getSurname())
-						.append("|");
-			StringBuilder occurrences = new StringBuilder("|");
-			for (News news : reportage.getOccurrences())
-				occurrences.append(news.getId()).append("|");
-			logger.info(reportage.getSubject() + " by " + reporters + " at "
-					+ occurrences);
+			logger.info(reportage.getSubject() + " : " + reportage.getContent());
 		}
 	}
 }

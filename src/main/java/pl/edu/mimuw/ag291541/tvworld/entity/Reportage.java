@@ -1,8 +1,5 @@
 package pl.edu.mimuw.ag291541.tvworld.entity;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
@@ -16,10 +13,6 @@ import org.hibernate.envers.RelationTargetAuditMode;
 public class Reportage implements Comparable<Reportage> {
 	private Long id;
 	/**
-	 * All the authors of the reportage.
-	 */
-	private Set<Reporter> reporters = new TreeSet<Reporter>();
-	/**
 	 * Reportage needs a unique subject. Reporters must not write about the same
 	 * thing two times. It is a business key.
 	 */
@@ -28,10 +21,6 @@ public class Reportage implements Comparable<Reportage> {
 	 * A transcription of the reportage.
 	 */
 	private String content;
-	/**
-	 * All the news TV productions that include this reportage.
-	 */
-	private Set<News> occurrences = new TreeSet<News>();
 
 	public Reportage() {
 
@@ -50,14 +39,6 @@ public class Reportage implements Comparable<Reportage> {
 		this.id = id;
 	}
 
-	public Set<Reporter> getReporters() {
-		return reporters;
-	}
-
-	public void setReporters(Set<Reporter> reporters) {
-		this.reporters = reporters;
-	}
-
 	public String getSubject() {
 		return subject;
 	}
@@ -72,14 +53,6 @@ public class Reportage implements Comparable<Reportage> {
 
 	public void setContent(String content) {
 		this.content = content;
-	}
-
-	public Set<News> getOccurrences() {
-		return occurrences;
-	}
-
-	public void setOccurrences(Set<News> occurrences) {
-		this.occurrences = occurrences;
 	}
 
 	@Override
