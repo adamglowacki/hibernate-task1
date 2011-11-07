@@ -14,7 +14,8 @@
 				<column name="tvworker_employer" />
 			</many-to-many>
 		</set>
-		<property name="subject" column="reportage_subject" />
+		<property name="subject" column="reportage_subject" unique="true"
+			unique-key="reportage_subject_index" />
 		<property name="content" column="reportage_content" />
 		<set name="occurrences" table="reportage_news">
 			<key column="reportage_id" foreign-key="reportage_fk" />

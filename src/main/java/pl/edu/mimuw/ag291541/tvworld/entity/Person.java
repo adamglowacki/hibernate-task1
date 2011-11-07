@@ -10,6 +10,10 @@ public class Person implements Comparable<Person> {
 	private Long id;
 	private String name;
 	private String surname;
+	/**
+	 * It must be unique. It is used as a business key of a person.
+	 */
+	private String pesel;
 
 	public Person() {
 	}
@@ -43,11 +47,19 @@ public class Person implements Comparable<Person> {
 		this.surname = surname;
 	}
 
+	public String getPesel() {
+		return pesel;
+	}
+
+	public void setPesel(String pesel) {
+		this.pesel = pesel;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((pesel == null) ? 0 : pesel.hashCode());
 		return result;
 	}
 
@@ -60,16 +72,16 @@ public class Person implements Comparable<Person> {
 		if (getClass() != obj.getClass())
 			return false;
 		Person other = (Person) obj;
-		if (id == null) {
-			if (other.id != null)
+		if (pesel == null) {
+			if (other.pesel != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!pesel.equals(other.pesel))
 			return false;
 		return true;
 	}
 
 	@Override
 	public int compareTo(Person o) {
-		return getId().compareTo(o.getId());
+		return getPesel().compareTo(o.getPesel());
 	}
 }

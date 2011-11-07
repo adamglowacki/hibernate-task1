@@ -7,6 +7,8 @@
 		<id name="id" column="tvproduction_id">
 			<generator class="native" />
 		</id>
+		<property name="productionName" column="tvproduction_productionname"
+			unique="true" unique-key="tvproduction_productionname_index" />
 		<set name="airingDate" table="tvproduction_airingdate">
 			<key column="tvproduction_id" foreign-key="tvproduction_fk" />
 			<element column="tvproduction_airingdate" type="timestamp" />

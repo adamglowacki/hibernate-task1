@@ -15,6 +15,10 @@ import java.io.Serializable;
  */
 public class TVWorker implements Serializable, Comparable<TVWorker> {
 	private static final long serialVersionUID = -6590695431871353445L;
+	/**
+	 * Fields <code>identity</code> and <code>employer</code> are used
+	 * altogether as a unique business key.
+	 */
 	private Person identity;
 	private TVStation employer;
 

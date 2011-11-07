@@ -9,5 +9,7 @@
 		</id>
 		<property name="name" column="person_name" />
 		<property name="surname" column="person_surname" />
+		<property name="pesel" column="person_pesel" unique="true"
+			unique-key="person_pesel_index" />
 	</class>
 </hibernate-mapping>

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Property;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
@@ -17,6 +16,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.edu.mimuw.ag291541.tvworld.dao.util.HibernateUtil;
 import pl.edu.mimuw.ag291541.tvworld.entity.News;
 import pl.edu.mimuw.ag291541.tvworld.entity.Person;
 import pl.edu.mimuw.ag291541.tvworld.entity.Reportage;
@@ -27,7 +27,6 @@ import pl.edu.mimuw.ag291541.tvworld.entity.type.ReporterSpeciality;
 
 public class ConfigurationTest {
 	private static SessionFactory sessionFactory;
-	private Session session;
 	private static Logger logger;
 
 	@BeforeClass
@@ -37,9 +36,7 @@ public class ConfigurationTest {
 
 	@BeforeClass
 	public static void acquireSessionFactory() {
-		Configuration cfg = new Configuration();
-		cfg.configure("hibernate.cfg.xml");
-		sessionFactory = cfg.buildSessionFactory();
+		sessionFactory = HibernateUtil.getSessionFactory();
 	}
 
 	@AfterClass
@@ -49,13 +46,12 @@ public class ConfigurationTest {
 
 	@Before
 	public void getSessionAndBeginTransaction() {
-		session = sessionFactory.getCurrentSession();
-		session.beginTransaction();
+		sessionFactory.getCurrentSession().beginTransaction();
 	}
 
 	@After
 	public void commitTransaction() {
-		session.getTransaction().commit();
+		sessionFactory.getCurrentSession().getTransaction().commit();
 	}
 
 	@Test
@@ -81,17 +77,17 @@ public class ConfigurationTest {
 		Person undecidedPerson = new Person("Joanna", "Niezdecydowana");
 		role1.setIdentity(undecidedPerson);
 		role2.setIdentity(undecidedPerson);
-		session.save(station1);
-		session.save(station2);
-		session.save(normalPerson);
-		session.save(abnormalPerson);
-		session.save(undecidedPerson);
-		session.save(worker1);
+		sessionFactory.getCurrentSession().save(station1);
+		sessionFactory.getCurrentSession().save(station2);
+		sessionFactory.getCurrentSession().save(normalPerson);
+		sessionFactory.getCurrentSession().save(abnormalPerson);
+		sessionFactory.getCurrentSession().save(undecidedPerson);
+		sessionFactory.getCurrentSession().save(worker1);
 		LoggerFactory.getLogger(ConfigurationTest.class).info(
 				worker2.toString());
-		session.save(worker2);
-		session.save(role1);
-		session.save(role2);
+		sessionFactory.getCurrentSession().save(worker2);
+		sessionFactory.getCurrentSession().save(role1);
+		sessionFactory.getCurrentSession().save(role2);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -117,30 +113,34 @@ public class ConfigurationTest {
 				ReporterSpeciality.GARDENING_SHOW, oldStation);
 		Reporter joannaReporter = new Reporter(joanna,
 				ReporterSpeciality.TALK_SHOW, oldStation);
-		session.save(oldStation);
-		session.save(andrew);
-		session.save(andrewReporter);
-		session.save(joanna);
-		session.save(joannaReporter);
-		session.save(reportage1);
-		Long rep2id = (Long) session.save(reportage2);
+		sessionFactory.getCurrentSession().save(oldStation);
+		sessionFactory.getCurrentSession().save(andrew);
+		sessionFactory.getCurrentSession().save(andrewReporter);
+		sessionFactory.getCurrentSession().save(joanna);
+		sessionFactory.getCurrentSession().save(joannaReporter);
+		sessionFactory.getCurrentSession().save(reportage1);
+		Long rep2id = (Long) sessionFactory.getCurrentSession()
+				.save(reportage2);
 		andrewReporter.getReportages().add(reportage1);
 		joannaReporter.getReportages().add(reportage2);
 		andrewReporter.getReportages().add(reportage2);
 
 		tryToReopenTransaction();
 
-		logInfo((List<Reportage>) session.createCriteria(Reportage.class)
+		logInfo((List<Reportage>) sessionFactory.getCurrentSession()
+				.createCriteria(Reportage.class)
 				.add(Property.forName("id").eq(rep2id)).list());
-		logInfo((List<Reportage>) session.createCriteria(Reportage.class)
-				.list());
-		Reportage rep2 = (Reportage) session.createCriteria(Reportage.class)
+		logInfo((List<Reportage>) sessionFactory.getCurrentSession()
+				.createCriteria(Reportage.class).list());
+		Reportage rep2 = (Reportage) sessionFactory.getCurrentSession()
+				.createCriteria(Reportage.class)
 				.add(Property.forName("id").eq(rep2id)).uniqueResult();
 		rep2.setContent(SECOND_REPORTAGE2_CONTENT);
 
 		tryToReopenTransaction();
 
-		AuditReader auditReader = AuditReaderFactory.get(session);
+		AuditReader auditReader = AuditReaderFactory.get(sessionFactory
+				.getCurrentSession());
 		Reportage rep2v1 = auditReader.find(Reportage.class, 2L, 1);
 		Reportage rep2v2 = auditReader.find(Reportage.class, 2L, 2);
 		Assert.assertTrue("First reportage revision has an invalid content.",

@@ -6,9 +6,9 @@ import java.util.TreeSet;
 public class TVSeries extends TVProduction {
 	private String title;
 	private Set<Episode> episodes = new TreeSet<Episode>();
-	
+
 	public TVSeries() {
-		
+
 	}
 
 	public TVSeries(String title) {

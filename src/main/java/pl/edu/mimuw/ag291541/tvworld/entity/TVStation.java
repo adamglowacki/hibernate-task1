@@ -13,6 +13,9 @@ import java.util.TreeSet;
  */
 public class TVStation implements Comparable<TVStation> {
 	private Long id;
+	/**
+	 * The field <code>name</code> must be unique for it used as a business key.
+	 */
 	private String name;
 	private Set<TVWorker> workers = new TreeSet<TVWorker>();
 
@@ -52,7 +55,7 @@ public class TVStation implements Comparable<TVStation> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
 
@@ -65,16 +68,16 @@ public class TVStation implements Comparable<TVStation> {
 		if (getClass() != obj.getClass())
 			return false;
 		TVStation other = (TVStation) obj;
-		if (id == null) {
-			if (other.id != null)
+		if (name == null) {
+			if (other.name != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!name.equals(other.name))
 			return false;
 		return true;
 	}
 
 	@Override
 	public int compareTo(TVStation o) {
-		return getId().compareTo(o.getId());
+		return getName().compareTo(o.getName());
 	}
 }

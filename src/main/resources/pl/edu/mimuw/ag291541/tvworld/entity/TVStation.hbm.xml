@@ -7,7 +7,8 @@
 		<id name="id" column="tvstation_id">
 			<generator class="native" />
 		</id>
-		<property name="name" column="tvstation_name" />
+		<property name="name" column="tvstation_name" unique="true"
+			unique-key="tvstation_name_index" />
 		<set name="workers" table="tvworker" inverse="true">
 			<key column="tvworker_employer" foreign-key="tvstation_fk" />
 			<one-to-many class="TVWorker" />
