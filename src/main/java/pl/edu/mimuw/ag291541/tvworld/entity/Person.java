@@ -18,9 +18,10 @@ public class Person implements Comparable<Person> {
 	public Person() {
 	}
 
-	public Person(String name, String surname) {
+	public Person(String name, String surname, String pesel) {
 		this.name = name;
 		this.surname = surname;
+		this.pesel = pesel;
 	}
 
 	public Long getId() {

@@ -7,7 +7,6 @@ import org.hibernate.criterion.Property;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -37,10 +36,10 @@ public class ConfigurationTest {
 		sessionFactory = HibernateUtil.getSessionFactory();
 	}
 
-	@AfterClass
-	public static void closeSessionFactory() {
-		sessionFactory.close();
-	}
+	// @AfterClass
+	// public static void closeSessionFactory() {
+	// sessionFactory.close();
+	// }
 
 	@Before
 	public void getSessionAndBeginTransaction() {
@@ -65,14 +64,15 @@ public class ConfigurationTest {
 		worker1.setIdentity(normalPerson);
 		worker1.setEmployer(station1);
 		TVWorker worker2 = new TVWorker();
-		Person abnormalPerson = new Person("Jerzy", "Nowak");
+		Person abnormalPerson = new Person("Jerzy", "Nowak", "blabla");
 		worker2.setEmployer(station2);
 		worker2.setIdentity(abnormalPerson);
 		TVWorker role1 = new TVWorker();
 		role1.setEmployer(station1);
 		TVWorker role2 = new TVWorker();
 		role2.setEmployer(station2);
-		Person undecidedPerson = new Person("Joanna", "Niezdecydowana");
+		Person undecidedPerson = new Person("Joanna", "Niezdecydowana",
+				"90909020912");
 		role1.setIdentity(undecidedPerson);
 		role2.setIdentity(undecidedPerson);
 		sessionFactory.getCurrentSession().save(station1);
@@ -102,10 +102,12 @@ public class ConfigurationTest {
 				INITIAL_REPORTAGE2_CONTENT);
 		final String andrewName = "Andrew";
 		final String andrewSurname = "Bolognese";
+		final String andrewPesel = "12345678910";
 		final String joannaName = "Joanna";
 		final String joannaSurname = "Flejfo";
-		Person andrew = new Person(andrewName, andrewSurname);
-		Person joanna = new Person(joannaName, joannaSurname);
+		final String joannaPesel = "01234567891";
+		Person andrew = new Person(andrewName, andrewSurname, andrewPesel);
+		Person joanna = new Person(joannaName, joannaSurname, joannaPesel);
 		TVStation oldStation = new TVStation("OldStation");
 		Reporter andrewReporter = new Reporter(andrew,
 				ReporterSpeciality.GARDENING_SHOW, oldStation);
