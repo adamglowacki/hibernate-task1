@@ -1,10 +1,14 @@
 package pl.edu.mimuw.ag291541.tvworld.service;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.criterion.DetachedCriteria;
 
-import pl.edu.mimuw.ag291541.tvworld.entity.Person;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.PersonDTO;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvProductionDTO;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvWorkerDTO;
 
 /**
  * Classes implementing this interface are intended to serve as a transactional
@@ -16,11 +20,28 @@ import pl.edu.mimuw.ag291541.tvworld.entity.Person;
  * 
  */
 public interface TvWorldService {
-	public Person create(String name, String surname, String pesel);
+	public PersonDTO createPerson(String name, String surname, String pesel);
 
-	public void delete(Person p);
+	public void deletePerson(PersonDTO p);
 
-	public void update(Person p);
+	public void updatePerson(PersonDTO p);
 
-	public List<Person> findPerson(DetachedCriteria criteria);
+	public List<PersonDTO> findPerson(DetachedCriteria criteria);
+
+	public TvProductionDTO createTvProduction(String productionName,
+			Set<Date> airingDate);
+
+	public void deleteTvProduction(TvProductionDTO tvProduction);
+
+	public void updateTvProduction(TvProductionDTO tvProduction);
+
+	public List<TvProductionDTO> findTvProduction(DetachedCriteria criteria);
+
+	public void addStaffMemberToTvProduction(TvProductionDTO tvProduction,
+			TvWorkerDTO staffMember);
+
+	public void removeStaffMemberFromTvProduction(TvProductionDTO tvProduction,
+			TvWorkerDTO staffMember);
+
+	public void getStaffFromTvProduction(TvProductionDTO tvProduction);
 }

@@ -22,4 +22,6 @@ public abstract class DAOFactory {
 	}
 
 	public abstract PersonDAO getPersonDAO();
+
+	public abstract TvProductionDAO getTvProductionDAO();
 }

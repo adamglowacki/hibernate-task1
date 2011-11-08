@@ -11,6 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import pl.edu.mimuw.ag291541.tvworld.entity.Person;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.PersonDTO;
 import pl.edu.mimuw.ag291541.tvworld.service.TvWorldService;
 import pl.edu.mimuw.ag291541.tvworld.service.TvWorldServiceFactory;
 
@@ -28,11 +29,11 @@ public class TvWorldServiceTest {
 		final String anneName = "Anne", anneSurname = "Katalinsky", annePesel = "TYTYTYTUS";
 		final String jamesName = "James", jamesSurname = "Tableboard", jamesPesel = "19121200007";
 		final int peopleNumber = 3;
-		final Person johnny = service.create(johnnyName, johnnySurname,
+		final PersonDTO johnny = service.createPerson(johnnyName, johnnySurname,
 				johnnyPesel);
-		final Person anne = service.create(anneName, anneSurname, annePesel);
-		final Person james = service
-				.create(jamesName, jamesSurname, jamesPesel);
+		final PersonDTO anne = service.createPerson(anneName, anneSurname, annePesel);
+		final PersonDTO james = service
+				.createPerson(jamesName, jamesSurname, jamesPesel);
 		final Long johnnyId = johnny.getId(), anneId = anne.getId(), jamesId = james
 				.getId();
 		final Set<Long> people = new TreeSet<Long>();
@@ -41,25 +42,25 @@ public class TvWorldServiceTest {
 		people.add(anneId);
 		final DetachedCriteria criteria = DetachedCriteria.forClass(
 				Person.class).add(Property.forName("id").in(people));
-		List<Person> persons = service.findPerson(criteria);
+		List<PersonDTO> persons = service.findPerson(criteria);
 		Assert.assertTrue(persons.size() == peopleNumber);
-		for (Person p : persons) {
+		for (PersonDTO p : persons) {
 			Assert.assertTrue(people.contains(p.getId()));
 		}
-		final List<Person> annes2 = service.findPerson(DetachedCriteria
+		final List<PersonDTO> annes2 = service.findPerson(DetachedCriteria
 				.forClass(Person.class).add(Property.forName("id").eq(anneId)));
 		Assert.assertTrue(annes2.size() == 1
 				&& annes2.get(0).getId().equals(anneId));
-		final Person anne2 = annes2.get(0);
+		final PersonDTO anne2 = annes2.get(0);
 		Assert.assertTrue(anne2.equals(anne));
 		final String anneNewSurname = anne.getSurname() + "-Bull";
 		anne.setSurname(anneNewSurname);
-		service.update(anne);
-		final List<Person> annes3 = service.findPerson(DetachedCriteria
+		service.updatePerson(anne);
+		final List<PersonDTO> annes3 = service.findPerson(DetachedCriteria
 				.forClass(Person.class).add(
 						Property.forName("pesel").eq(annePesel)));
 		Assert.assertTrue(annes3.size() == 1);
-		final Person anne3 = annes3.get(0);
+		final PersonDTO anne3 = annes3.get(0);
 		/* it is still the same person */
 		Assert.assertTrue(anne3.equals(anne));
 		/* though with a new surname */

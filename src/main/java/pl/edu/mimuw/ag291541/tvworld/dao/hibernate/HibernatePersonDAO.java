@@ -22,16 +22,17 @@ public class HibernatePersonDAO implements PersonDAO {
 		HibernateUtil.getSessionFactory().getCurrentSession().delete(p);
 	}
 
-	@Override
-	public void update(Person p) {
-		HibernateUtil.getSessionFactory().getCurrentSession().update(p);
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Person> find(DetachedCriteria criteria) {
 		return criteria.getExecutableCriteria(
 				HibernateUtil.getSessionFactory().getCurrentSession()).list();
+	}
+
+	@Override
+	public Person get(Long id) {
+		return (Person) HibernateUtil.getSessionFactory().getCurrentSession()
+				.get(Person.class, id);
 	}
 
 }

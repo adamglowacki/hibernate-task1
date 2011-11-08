@@ -64,7 +64,7 @@ public class TvWorker implements Serializable, Comparable<TvWorker> {
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof TvWorker))
 			return false;
 		TvWorker other = (TvWorker) obj;
 		if (employer == null) {

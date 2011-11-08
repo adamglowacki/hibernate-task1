@@ -74,7 +74,7 @@ public class Reportage implements Comparable<Reportage> {
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof Reportage))
 			return false;
 		Reportage other = (Reportage) obj;
 		if (subject == null) {

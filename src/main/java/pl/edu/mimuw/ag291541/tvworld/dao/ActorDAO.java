@@ -14,7 +14,7 @@ public interface ActorDAO {
 
 	public void delete(Actor p);
 
-	public void update(Actor p);
+	public Actor get(Person identity, TvStation employer);
 
 	public List<Actor> find(DetachedCriteria criteria);
 }

@@ -11,7 +11,7 @@ public interface PersonDAO {
 
 	public void delete(Person p);
 
-	public void update(Person p);
+	public Person get(Long id);
 
 	public List<Person> find(DetachedCriteria criteria);
 }

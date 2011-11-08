@@ -2,6 +2,7 @@ package pl.edu.mimuw.ag291541.tvworld.dao.hibernate;
 
 import pl.edu.mimuw.ag291541.tvworld.dao.DAOFactory;
 import pl.edu.mimuw.ag291541.tvworld.dao.PersonDAO;
+import pl.edu.mimuw.ag291541.tvworld.dao.TvProductionDAO;
 
 public class HibernateDAOFactory extends DAOFactory {
 
@@ -10,4 +11,8 @@ public class HibernateDAOFactory extends DAOFactory {
 		return new HibernatePersonDAO();
 	}
 
+	@Override
+	public TvProductionDAO getTvProductionDAO() {
+		return new HibernateTvProductionDAO();
+	}
 }

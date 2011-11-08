@@ -69,7 +69,7 @@ public class Episode implements Comparable<Episode> {
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof Episode))
 			return false;
 		Episode other = (Episode) obj;
 		if (number != other.number)

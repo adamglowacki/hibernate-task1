@@ -15,7 +15,7 @@ public interface ReporterDAO {
 
 	public void delete(Reporter p);
 
-	public void update(Reporter p);
+	public Reporter get(Person identity, TvStation employer);
 
 	public List<Reporter> find(DetachedCriteria criteria);
 }
