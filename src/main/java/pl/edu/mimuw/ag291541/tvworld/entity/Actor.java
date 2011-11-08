@@ -11,7 +11,7 @@ import pl.edu.mimuw.ag291541.tvworld.entity.type.ActorRating;
  * @author adas
  * 
  */
-public class Actor extends TVWorker {
+public class Actor extends TvWorker {
 	private static final long serialVersionUID = -1670051486778818856L;
 	private ActorRating rating;
 	/**
@@ -23,7 +23,7 @@ public class Actor extends TVWorker {
 
 	}
 
-	public Actor(Person person, ActorRating rating, TVStation employer) {
+	public Actor(Person person, ActorRating rating, TvStation employer) {
 		super(person, employer);
 		this.rating = rating;
 	}

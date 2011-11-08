@@ -3,7 +3,7 @@
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="pl.edu.mimuw.ag291541.tvworld.entity">
-	<class name="TVWorker" schema="public" table="tvworker"
+	<class name="TvWorker" schema="public" table="tvworker"
 		discriminator-value="tvworker">
 		<composite-id>
 			<key-many-to-one name="identity" column="tvworker_identity"

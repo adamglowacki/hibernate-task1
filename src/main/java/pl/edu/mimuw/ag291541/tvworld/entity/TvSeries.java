@@ -3,15 +3,15 @@ package pl.edu.mimuw.ag291541.tvworld.entity;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class TVSeries extends TVProduction {
+public class TvSeries extends TvProduction {
 	private String title;
 	private Set<Episode> episodes = new TreeSet<Episode>();
 
-	public TVSeries() {
+	public TvSeries() {
 
 	}
 
-	public TVSeries(String title) {
+	public TvSeries(String title) {
 		this.title = title;
 	}
 

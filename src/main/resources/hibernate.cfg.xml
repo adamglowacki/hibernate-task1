@@ -37,9 +37,9 @@
 		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/Episode.hbm.xml" />
 		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/Person.hbm.xml" />
 		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/Reportage.hbm.xml" />
-		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/TVProduction.hbm.xml" />
-		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/TVStation.hbm.xml" />
-		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/TVWorker.hbm.xml" />
+		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/TvProduction.hbm.xml" />
+		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/TvStation.hbm.xml" />
+		<mapping resource="pl/edu/mimuw/ag291541/tvworld/entity/TvWorker.hbm.xml" />
 
 		<listener class="org.hibernate.envers.event.AuditEventListener"
 			type="post-insert" />

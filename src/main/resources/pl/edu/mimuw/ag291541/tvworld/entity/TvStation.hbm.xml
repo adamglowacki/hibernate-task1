@@ -3,7 +3,7 @@
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="pl.edu.mimuw.ag291541.tvworld.entity">
-	<class name="TVStation" schema="public" table="tvstation">
+	<class name="TvStation" schema="public" table="tvstation">
 		<id name="id" column="tvstation_id">
 			<generator class="native" />
 		</id>
@@ -11,7 +11,7 @@
 			unique-key="tvstation_name_index" />
 		<set name="workers" table="tvworker" inverse="true">
 			<key column="tvworker_employer" foreign-key="tvstation_fk" />
-			<one-to-many class="TVWorker" />
+			<one-to-many class="TvWorker" />
 		</set>
 	</class>
 </hibernate-mapping>

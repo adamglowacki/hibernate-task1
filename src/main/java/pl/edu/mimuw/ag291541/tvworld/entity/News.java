@@ -3,7 +3,7 @@ package pl.edu.mimuw.ag291541.tvworld.entity;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class News extends TVProduction {
+public class News extends TvProduction {
 	/**
 	 * A number of people who watched the news.
 	 */

@@ -6,7 +6,7 @@ public class Episode implements Comparable<Episode> {
 	 * All the fields <code>tvSeries</code>, <code>season</code> and
 	 * <code>number</code> are the business key.
 	 */
-	private TVSeries tvSeries;
+	private TvSeries tvSeries;
 	private long season;
 	private long number;
 
@@ -14,7 +14,7 @@ public class Episode implements Comparable<Episode> {
 
 	}
 
-	public Episode(TVSeries tvSeries, long season, long number) {
+	public Episode(TvSeries tvSeries, long season, long number) {
 		this.tvSeries = tvSeries;
 		this.season = season;
 		this.number = number;
@@ -28,11 +28,11 @@ public class Episode implements Comparable<Episode> {
 		this.id = id;
 	}
 
-	public TVSeries getTvSeries() {
+	public TvSeries getTvSeries() {
 		return tvSeries;
 	}
 
-	public void setTvSeries(TVSeries tvSeries) {
+	public void setTvSeries(TvSeries tvSeries) {
 		this.tvSeries = tvSeries;
 	}
 

@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
-public abstract class TVProduction implements Comparable<TVProduction> {
+public abstract class TvProduction implements Comparable<TvProduction> {
 	private Long id;
 	/**
 	 * Name for the whole production. It is a unique business key.
@@ -14,7 +14,7 @@ public abstract class TVProduction implements Comparable<TVProduction> {
 	/**
 	 * TV workers related to the production, besides actors and reporters.
 	 */
-	private Set<TVWorker> staff = new TreeSet<TVWorker>();
+	private Set<TvWorker> staff = new TreeSet<TvWorker>();
 
 	public Long getId() {
 		return id;
@@ -40,11 +40,11 @@ public abstract class TVProduction implements Comparable<TVProduction> {
 		this.airingDate = airingDate;
 	}
 
-	public Set<TVWorker> getStaff() {
+	public Set<TvWorker> getStaff() {
 		return staff;
 	}
 
-	public void setStaff(Set<TVWorker> staff) {
+	public void setStaff(Set<TvWorker> staff) {
 		this.staff = staff;
 	}
 
@@ -65,7 +65,7 @@ public abstract class TVProduction implements Comparable<TVProduction> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TVProduction other = (TVProduction) obj;
+		TvProduction other = (TvProduction) obj;
 		if (productionName == null) {
 			if (other.productionName != null)
 				return false;
@@ -75,7 +75,7 @@ public abstract class TVProduction implements Comparable<TVProduction> {
 	}
 
 	@Override
-	public int compareTo(TVProduction o) {
+	public int compareTo(TvProduction o) {
 		return getProductionName().compareTo(o.getProductionName());
 	}
 }

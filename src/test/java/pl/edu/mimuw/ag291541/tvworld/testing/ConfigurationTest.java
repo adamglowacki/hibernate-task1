@@ -18,8 +18,8 @@ import pl.edu.mimuw.ag291541.tvworld.dao.util.HibernateUtil;
 import pl.edu.mimuw.ag291541.tvworld.entity.Person;
 import pl.edu.mimuw.ag291541.tvworld.entity.Reportage;
 import pl.edu.mimuw.ag291541.tvworld.entity.Reporter;
-import pl.edu.mimuw.ag291541.tvworld.entity.TVStation;
-import pl.edu.mimuw.ag291541.tvworld.entity.TVWorker;
+import pl.edu.mimuw.ag291541.tvworld.entity.TvStation;
+import pl.edu.mimuw.ag291541.tvworld.entity.TvWorker;
 import pl.edu.mimuw.ag291541.tvworld.entity.type.ReporterSpeciality;
 
 public class ConfigurationTest {
@@ -36,11 +36,6 @@ public class ConfigurationTest {
 		sessionFactory = HibernateUtil.getSessionFactory();
 	}
 
-	// @AfterClass
-	// public static void closeSessionFactory() {
-	// sessionFactory.close();
-	// }
-
 	@Before
 	public void getSessionAndBeginTransaction() {
 		sessionFactory.getCurrentSession().beginTransaction();
@@ -52,24 +47,24 @@ public class ConfigurationTest {
 	}
 
 	@Test
-	public void addPeople() {
+	public void addPeopleManually() {
 		Person normalPerson = new Person();
 		normalPerson.setName("Jan");
 		normalPerson.setSurname("Kowalski");
-		TVStation station1 = new TVStation();
+		TvStation station1 = new TvStation();
 		station1.setName("TVP1");
-		TVStation station2 = new TVStation();
+		TvStation station2 = new TvStation();
 		station2.setName("TVP2");
-		TVWorker worker1 = new TVWorker();
+		TvWorker worker1 = new TvWorker();
 		worker1.setIdentity(normalPerson);
 		worker1.setEmployer(station1);
-		TVWorker worker2 = new TVWorker();
+		TvWorker worker2 = new TvWorker();
 		Person abnormalPerson = new Person("Jerzy", "Nowak", "blabla");
 		worker2.setEmployer(station2);
 		worker2.setIdentity(abnormalPerson);
-		TVWorker role1 = new TVWorker();
+		TvWorker role1 = new TvWorker();
 		role1.setEmployer(station1);
-		TVWorker role2 = new TVWorker();
+		TvWorker role2 = new TvWorker();
 		role2.setEmployer(station2);
 		Person undecidedPerson = new Person("Joanna", "Niezdecydowana",
 				"90909020912");
@@ -108,7 +103,7 @@ public class ConfigurationTest {
 		final String joannaPesel = "01234567891";
 		Person andrew = new Person(andrewName, andrewSurname, andrewPesel);
 		Person joanna = new Person(joannaName, joannaSurname, joannaPesel);
-		TVStation oldStation = new TVStation("OldStation");
+		TvStation oldStation = new TvStation("OldStation");
 		Reporter andrewReporter = new Reporter(andrew,
 				ReporterSpeciality.GARDENING_SHOW, oldStation);
 		Reporter joannaReporter = new Reporter(joanna,
@@ -127,10 +122,10 @@ public class ConfigurationTest {
 
 		tryToReopenTransaction();
 
-		logInfo((List<Reportage>) sessionFactory.getCurrentSession()
+		logInfo(sessionFactory.getCurrentSession()
 				.createCriteria(Reportage.class)
 				.add(Property.forName("id").eq(rep2id)).list());
-		logInfo((List<Reportage>) sessionFactory.getCurrentSession()
+		logInfo(sessionFactory.getCurrentSession()
 				.createCriteria(Reportage.class).list());
 		Reportage rep2 = (Reportage) sessionFactory.getCurrentSession()
 				.createCriteria(Reportage.class)

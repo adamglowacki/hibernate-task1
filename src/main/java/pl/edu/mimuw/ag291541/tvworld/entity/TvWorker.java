@@ -13,20 +13,20 @@ import java.io.Serializable;
  * @author adas
  * 
  */
-public class TVWorker implements Serializable, Comparable<TVWorker> {
+public class TvWorker implements Serializable, Comparable<TvWorker> {
 	private static final long serialVersionUID = -6590695431871353445L;
 	/**
 	 * Fields <code>identity</code> and <code>employer</code> are used
 	 * altogether as a unique business key.
 	 */
 	private Person identity;
-	private TVStation employer;
+	private TvStation employer;
 
-	public TVWorker() {
+	public TvWorker() {
 
 	}
 
-	public TVWorker(Person identity, TVStation employer) {
+	public TvWorker(Person identity, TvStation employer) {
 		this.identity = identity;
 		this.employer = employer;
 	}
@@ -39,11 +39,11 @@ public class TVWorker implements Serializable, Comparable<TVWorker> {
 		this.identity = identity;
 	}
 
-	public TVStation getEmployer() {
+	public TvStation getEmployer() {
 		return employer;
 	}
 
-	public void setEmployer(TVStation employer) {
+	public void setEmployer(TvStation employer) {
 		this.employer = employer;
 	}
 
@@ -66,7 +66,7 @@ public class TVWorker implements Serializable, Comparable<TVWorker> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TVWorker other = (TVWorker) obj;
+		TvWorker other = (TvWorker) obj;
 		if (employer == null) {
 			if (other.employer != null)
 				return false;
@@ -81,7 +81,7 @@ public class TVWorker implements Serializable, Comparable<TVWorker> {
 	}
 
 	@Override
-	public int compareTo(TVWorker o) {
+	public int compareTo(TvWorker o) {
 		int idCmp = getIdentity().compareTo(o.getIdentity());
 		int empCmp = getEmployer().compareTo(o.getEmployer());
 		if (idCmp != 0) /* non-equal identities */

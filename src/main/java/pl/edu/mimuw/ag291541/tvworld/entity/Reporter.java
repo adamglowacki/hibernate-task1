@@ -11,7 +11,7 @@ import pl.edu.mimuw.ag291541.tvworld.entity.type.ReporterSpeciality;
  * @author adas
  * 
  */
-public class Reporter extends TVWorker {
+public class Reporter extends TvWorker {
 	private static final long serialVersionUID = -8030420216135307085L;
 	private ReporterSpeciality speciality;
 	/**
@@ -24,7 +24,7 @@ public class Reporter extends TVWorker {
 	}
 
 	public Reporter(Person person, ReporterSpeciality speciality,
-			TVStation employer) {
+			TvStation employer) {
 		super(person, employer);
 		this.speciality = speciality;
 	}

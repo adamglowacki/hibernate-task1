@@ -11,19 +11,19 @@ import java.util.TreeSet;
  * @author adas
  * 
  */
-public class TVStation implements Comparable<TVStation> {
+public class TvStation implements Comparable<TvStation> {
 	private Long id;
 	/**
 	 * The field <code>name</code> must be unique for it used as a business key.
 	 */
 	private String name;
-	private Set<TVWorker> workers = new TreeSet<TVWorker>();
+	private Set<TvWorker> workers = new TreeSet<TvWorker>();
 
-	public TVStation() {
+	public TvStation() {
 
 	}
 
-	public TVStation(String name) {
+	public TvStation(String name) {
 		this.name = name;
 	}
 
@@ -43,11 +43,11 @@ public class TVStation implements Comparable<TVStation> {
 		this.name = name;
 	}
 
-	public Set<TVWorker> getWorkers() {
+	public Set<TvWorker> getWorkers() {
 		return workers;
 	}
 
-	public void setWorkers(Set<TVWorker> workers) {
+	public void setWorkers(Set<TvWorker> workers) {
 		this.workers = workers;
 	}
 
@@ -67,7 +67,7 @@ public class TVStation implements Comparable<TVStation> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TVStation other = (TVStation) obj;
+		TvStation other = (TvStation) obj;
 		if (name == null) {
 			if (other.name != null)
 				return false;
@@ -77,7 +77,7 @@ public class TVStation implements Comparable<TVStation> {
 	}
 
 	@Override
-	public int compareTo(TVStation o) {
+	public int compareTo(TvStation o) {
 		return getName().compareTo(o.getName());
 	}
 }
