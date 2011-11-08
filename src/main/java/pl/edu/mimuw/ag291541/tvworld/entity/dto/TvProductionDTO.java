@@ -14,7 +14,7 @@ public class TvProductionDTO implements Comparable<TvProductionDTO> {
 	public TvProductionDTO(TvProduction tvProduction) {
 		this.id = tvProduction.getId();
 		this.productionName = tvProduction.getProductionName();
-		this.airingDate = new TreeSet<Date>(airingDate);
+		this.airingDate = new TreeSet<Date>(tvProduction.getAiringDate());
 	}
 
 	public String getProductionName() {

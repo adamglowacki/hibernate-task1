@@ -3,6 +3,7 @@ package pl.edu.mimuw.ag291541.tvworld.entity;
 import java.util.Set;
 import java.util.TreeSet;
 
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.ActorDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.type.ActorRating;
 
 /**
@@ -42,5 +43,10 @@ public class Actor extends TvWorker {
 
 	public void setEpisodes(Set<Episode> episodes) {
 		this.episodes = episodes;
+	}
+
+	public void update(ActorDTO actor) {
+		if (!getRating().equals(actor.getRating()))
+			setRating(actor.getRating());
 	}
 }

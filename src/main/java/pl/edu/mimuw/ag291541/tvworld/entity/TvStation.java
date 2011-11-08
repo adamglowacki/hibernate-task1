@@ -3,6 +3,8 @@ package pl.edu.mimuw.ag291541.tvworld.entity;
 import java.util.Set;
 import java.util.TreeSet;
 
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvStationDTO;
+
 /**
  * A company that employers TV workers. Notice that only workers are assigned to
  * TV stations. Other entities such as TV productions are not. They can be
@@ -49,6 +51,18 @@ public class TvStation implements Comparable<TvStation> {
 
 	public void setWorkers(Set<TvWorker> workers) {
 		this.workers = workers;
+	}
+
+	/**
+	 * Updates this object according to the <code>dto</code> content. It assumes
+	 * it is on-line and uses the session.
+	 * 
+	 * @param dto
+	 *            The Data Transfer Object contatining information that is to be
+	 *            put into this object.
+	 */
+	public void update(TvStationDTO dto) {
+		/* actually <code>TvStationDTO</code> are immutable objects */
 	}
 
 	@Override

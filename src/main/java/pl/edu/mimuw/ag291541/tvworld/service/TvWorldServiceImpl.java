@@ -1,34 +1,64 @@
 package pl.edu.mimuw.ag291541.tvworld.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.hibernate.criterion.DetachedCriteria;
 
+import pl.edu.mimuw.ag291541.tvworld.dao.ActorDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.DAOFactory;
 import pl.edu.mimuw.ag291541.tvworld.dao.DAOFactory.DAOFactoryType;
+import pl.edu.mimuw.ag291541.tvworld.dao.NewsDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.PersonDAO;
+import pl.edu.mimuw.ag291541.tvworld.dao.ReportageDAO;
+import pl.edu.mimuw.ag291541.tvworld.dao.ReporterDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.TvProductionDAO;
+import pl.edu.mimuw.ag291541.tvworld.dao.TvStationDAO;
+import pl.edu.mimuw.ag291541.tvworld.dao.TvWorkerDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.util.HibernateUtil;
+import pl.edu.mimuw.ag291541.tvworld.entity.Actor;
+import pl.edu.mimuw.ag291541.tvworld.entity.News;
 import pl.edu.mimuw.ag291541.tvworld.entity.Person;
+import pl.edu.mimuw.ag291541.tvworld.entity.Reportage;
+import pl.edu.mimuw.ag291541.tvworld.entity.Reporter;
 import pl.edu.mimuw.ag291541.tvworld.entity.TvProduction;
+import pl.edu.mimuw.ag291541.tvworld.entity.TvStation;
+import pl.edu.mimuw.ag291541.tvworld.entity.TvWorker;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.ActorDTO;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.NewsDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.PersonDTO;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.ReportageDTO;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.ReporterDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvProductionDTO;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvStationDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvWorkerDTO;
+import pl.edu.mimuw.ag291541.tvworld.entity.type.ActorRating;
+import pl.edu.mimuw.ag291541.tvworld.entity.type.ReporterSpeciality;
 
 public class TvWorldServiceImpl implements TvWorldService {
 	private static TvWorldServiceImpl instance = new TvWorldServiceImpl();
 	private PersonDAO personDao;
 	private TvProductionDAO tvProductionDao;
+	private TvWorkerDAO tvWorkerDao;
+	private ReporterDAO reporterDao;
+	private TvStationDAO tvStationDao;
+	private ActorDAO actorDao;
+	private NewsDAO newsDao;
+	private ReportageDAO reportageDao;
 
 	private TvWorldServiceImpl() {
 		DAOFactory daoFactory = DAOFactory
 				.getDAOFactory(DAOFactoryType.HIBERNATE_DAO_FACTORY);
 		personDao = daoFactory.getPersonDAO();
 		tvProductionDao = daoFactory.getTvProductionDAO();
+		tvWorkerDao = daoFactory.getTvWorkerDAO();
+		reporterDao = daoFactory.getReporterDAO();
+		tvStationDao = daoFactory.getTvStationDAO();
+		actorDao = daoFactory.getActorDAO();
+		newsDao = daoFactory.getNewsDAO();
+		reportageDao = daoFactory.getReportageDAO();
 	}
 
 	public static TvWorldServiceImpl getInstance() {
@@ -51,8 +81,7 @@ public class TvWorldServiceImpl implements TvWorldService {
 		callInTransaction(new CallableInTransaction() {
 			@Override
 			public void call() {
-				Person entityPerson = personDao.get(p.getId());
-				personDao.delete(entityPerson);
+				personDao.delete(getPerson(p));
 			}
 		});
 	}
@@ -62,8 +91,7 @@ public class TvWorldServiceImpl implements TvWorldService {
 		callInTransaction(new CallableInTransaction() {
 			@Override
 			public void call() {
-				Person entityPerson = personDao.get(p.getId());
-				p.update(entityPerson);
+				getPerson(p).update(p);
 			}
 		});
 	}
@@ -84,50 +112,468 @@ public class TvWorldServiceImpl implements TvWorldService {
 	}
 
 	@Override
-	public TvProductionDTO createTvProduction(String productionName,
-			Set<Date> airingDate) {
-		TvProduction tvProduction = tvProductionDao.create(productionName,
-				new TreeSet<Date>(airingDate));
-		return new TvProductionDTO(tvProduction);
+	public void deleteTvProduction(final TvProductionDTO tvProduction) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				tvProductionDao.delete(getTvProduction(tvProduction));
+			}
+		});
 	}
 
 	@Override
-	public void deleteTvProduction(TvProductionDTO tvProduction) {
-		tvProductionDao.delete(tvProductionDao.get(tvProduction.getId()));
+	public void updateTvProduction(final TvProductionDTO tvProduction) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				tvProduction.update(getTvProduction(tvProduction));
+			}
+		});
 	}
 
 	@Override
-	public void updateTvProduction(TvProductionDTO tvProduction) {
-		tvProduction.update(tvProductionDao.get(tvProduction.getId()));
+	public List<TvProductionDTO> findTvProduction(
+			final DetachedCriteria criteria) {
+		return callInTransaction(new CallableWithResultInTransaction<List<TvProductionDTO>>() {
+			@Override
+			public List<TvProductionDTO> call() {
+				List<TvProduction> entityTvProductions = tvProductionDao
+						.find(criteria);
+				List<TvProductionDTO> tvProductions = new ArrayList<TvProductionDTO>(
+						entityTvProductions.size());
+				for (TvProduction tp : entityTvProductions)
+					tvProductions.add(new TvProductionDTO(tp));
+				return tvProductions;
+			}
+		});
 	}
 
 	@Override
-	public List<TvProductionDTO> findTvProduction(DetachedCriteria criteria) {
-		// TODO Auto-generated method stub
-		return null;
+	public void addStaffMemberToTvProduction(
+			final TvProductionDTO tvProduction, final TvWorkerDTO staffMember) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getTvProduction(tvProduction).getStaff().add(
+						getTvWorker(staffMember));
+			}
+		});
 	}
 
 	@Override
-	public void addStaffMemberToTvProduction(TvProductionDTO tvProduction,
-			TvWorkerDTO staffMember) {
-		// TODO Auto-generated method stub
-
+	public void removeStaffMemberFromTvProduction(
+			final TvProductionDTO tvProduction, final TvWorkerDTO staffMember) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getTvProduction(tvProduction).getStaff().remove(
+						getTvWorker(staffMember));
+			}
+		});
 	}
 
 	@Override
-	public void removeStaffMemberFromTvProduction(TvProductionDTO tvProduction,
-			TvWorkerDTO staffMember) {
-		// TODO Auto-generated method stub
-
+	public Set<TvWorkerDTO> getStaffFromTvProduction(
+			final TvProductionDTO tvProduction) {
+		return callInTransaction(new CallableWithResultInTransaction<Set<TvWorkerDTO>>() {
+			@Override
+			public Set<TvWorkerDTO> call() {
+				Set<TvWorker> entityStaff = getTvProduction(tvProduction)
+						.getStaff();
+				Set<TvWorkerDTO> staff = new TreeSet<TvWorkerDTO>();
+				for (TvWorker tw : entityStaff)
+					staff.add(new TvWorkerDTO(tw));
+				return staff;
+			}
+		});
 	}
 
 	@Override
-	public void getStaffFromTvProduction(TvProductionDTO tvProduction) {
-		// TODO Auto-generated method stub
+	public TvStationDTO createTvStation(final String name) {
+		return callInTransaction(new CallableWithResultInTransaction<TvStationDTO>() {
+			@Override
+			public TvStationDTO call() {
+				TvStation ts = tvStationDao.create(name);
+				return new TvStationDTO(ts);
+			}
+		});
+	}
 
+	@Override
+	public void deleteTvStation(final TvStationDTO tvStation) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				tvStationDao.delete(getTvStation(tvStation));
+			}
+		});
+	}
+
+	@Override
+	public List<TvStationDTO> findTvStation(final DetachedCriteria criteria) {
+		return callInTransaction(new CallableWithResultInTransaction<List<TvStationDTO>>() {
+			@Override
+			public List<TvStationDTO> call() {
+				List<TvStation> entityTvStations = tvStationDao.find(criteria);
+				List<TvStationDTO> tvStations = new ArrayList<TvStationDTO>(
+						entityTvStations.size());
+				for (TvStation tv : entityTvStations)
+					tvStations.add(new TvStationDTO(tv));
+				return tvStations;
+			}
+		});
+	}
+
+	@Override
+	public Set<TvWorkerDTO> getTvWorkersFromTvStation(
+			final TvStationDTO tvStation) {
+		return callInTransaction(new CallableWithResultInTransaction<Set<TvWorkerDTO>>() {
+			@Override
+			public Set<TvWorkerDTO> call() {
+				Set<TvWorker> entityTvWorkers = getTvStation(tvStation)
+						.getWorkers();
+				Set<TvWorkerDTO> tvWorkers = new TreeSet<TvWorkerDTO>();
+				for (TvWorker tw : entityTvWorkers)
+					tvWorkers.add(new TvWorkerDTO(tw));
+				return tvWorkers;
+			}
+		});
+	}
+
+	@Override
+	public TvWorkerDTO createTvWorker(final PersonDTO identity,
+			final TvStationDTO employer) {
+		return callInTransaction(new CallableWithResultInTransaction<TvWorkerDTO>() {
+			@Override
+			public TvWorkerDTO call() {
+				return new TvWorkerDTO(tvWorkerDao.create(getPerson(identity),
+						getTvStation(employer)));
+			}
+		});
+	}
+
+	@Override
+	public void deleteTvWorker(final TvWorkerDTO tvWorker) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				tvWorkerDao.delete(getTvWorker(tvWorker));
+			}
+		});
+	}
+
+	@Override
+	public ReporterDTO createReporter(final PersonDTO identity,
+			final ReporterSpeciality speciality, final TvStationDTO employer) {
+		return callInTransaction(new CallableWithResultInTransaction<ReporterDTO>() {
+			@Override
+			public ReporterDTO call() {
+				return new ReporterDTO(reporterDao.create(getPerson(identity),
+						speciality, getTvStation(employer)));
+			}
+		});
+	}
+
+	@Override
+	public void deleteReporter(final ReporterDTO reporter) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				reporterDao.delete(getReporter(reporter));
+			}
+		});
+	}
+
+	@Override
+	public void updateReporter(final ReporterDTO reporter) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getReporter(reporter).update(reporter);
+			}
+		});
+	}
+
+	@Override
+	public void addReportageToReporter(final ReporterDTO reporter,
+			final ReportageDTO reportage) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getReporter(reporter).getReportages().add(
+						getReportage(reportage));
+			}
+		});
+	}
+
+	@Override
+	public Set<ReportageDTO> getReportagesFromReporter(
+			final ReporterDTO reporter) {
+		return callInTransaction(new CallableWithResultInTransaction<Set<ReportageDTO>>() {
+			@Override
+			public Set<ReportageDTO> call() {
+				Set<Reportage> entityReportages = getReporter(reporter)
+						.getReportages();
+				Set<ReportageDTO> reportages = new TreeSet<ReportageDTO>();
+				for (Reportage r : entityReportages)
+					reportages.add(new ReportageDTO(r));
+				return reportages;
+			}
+		});
+	}
+
+	@Override
+	public void removeReportageFromReporter(final ReporterDTO reporter,
+			final ReportageDTO reportage) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getReporter(reporter).getReportages().remove(reportage);
+			}
+		});
+	}
+
+	@Override
+	public List<ReporterDTO> findReporter(final DetachedCriteria criteria) {
+		return callInTransaction(new CallableWithResultInTransaction<List<ReporterDTO>>() {
+			@Override
+			public List<ReporterDTO> call() {
+				List<Reporter> entityReporters = reporterDao.find(criteria);
+				List<ReporterDTO> reporters = new ArrayList<ReporterDTO>(
+						entityReporters.size());
+				for (Reporter r : entityReporters)
+					reporters.add(new ReporterDTO(r));
+				return reporters;
+			}
+		});
+	}
+
+	@Override
+	public ActorDTO createActor(final PersonDTO identity,
+			final ActorRating rating, final TvStationDTO employer) {
+		return callInTransaction(new CallableWithResultInTransaction<ActorDTO>() {
+			@Override
+			public ActorDTO call() {
+				return new ActorDTO(actorDao.create(getPerson(identity),
+						rating, getTvStation(employer)));
+			}
+		});
+	}
+
+	@Override
+	public void deleteActor(final ActorDTO actor) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				actorDao.delete(getActor(actor));
+			}
+		});
+	}
+
+	@Override
+	public void updateActor(final ActorDTO actor) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getActor(actor).update(actor);
+			}
+		});
+	}
+
+	@Override
+	public List<ActorDTO> findActor(DetachedCriteria criteria) {
+		List<Actor> entityActors = actorDao.find(criteria);
+		List<ActorDTO> actors = new ArrayList<ActorDTO>(entityActors.size());
+		for (Actor a : entityActors)
+			actors.add(new ActorDTO(a));
+		return actors;
+	}
+
+	@Override
+	public NewsDTO createNews(final String productionName, final long audience) {
+		return callInTransaction(new CallableWithResultInTransaction<NewsDTO>() {
+			@Override
+			public NewsDTO call() {
+				return new NewsDTO(newsDao.create(productionName, audience));
+			}
+		});
+	}
+
+	@Override
+	public void deleteNews(final NewsDTO news) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				newsDao.delete(getNews(news));
+			}
+		});
+	}
+
+	@Override
+	public void updateNews(final NewsDTO news) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getNews(news).update(news);
+			}
+		});
+	}
+
+	@Override
+	public List<NewsDTO> findNews(final DetachedCriteria criteria) {
+		return callInTransaction(new CallableWithResultInTransaction<List<NewsDTO>>() {
+			@Override
+			public List<NewsDTO> call() {
+				List<News> entityNews = newsDao.find(criteria);
+				List<NewsDTO> news = new ArrayList<NewsDTO>();
+				for (News n : entityNews)
+					news.add(new NewsDTO(n));
+				return news;
+			}
+		});
+	}
+
+	@Override
+	public Set<ReportageDTO> getReportagesFromNews(final NewsDTO news) {
+		return callInTransaction(new CallableWithResultInTransaction<Set<ReportageDTO>>() {
+			@Override
+			public Set<ReportageDTO> call() {
+				Set<Reportage> entityReportages = getNews(news).getReportages();
+				Set<ReportageDTO> reportages = new TreeSet<ReportageDTO>();
+				for (Reportage r : entityReportages)
+					reportages.add(new ReportageDTO(r));
+				return reportages;
+			}
+		});
+	}
+
+	@Override
+	public void addReportageToNews(final NewsDTO news,
+			final ReportageDTO reportage) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getNews(news).getReportages().add(getReportage(reportage));
+			}
+		});
+	}
+
+	@Override
+	public void removeReportageFromNews(final NewsDTO news,
+			final ReportageDTO reportage) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getNews(news).getReportages().remove(getReportage(reportage));
+			}
+		});
+	}
+
+	@Override
+	public ReportageDTO createReportage(final String subject,
+			final String content) {
+		return callInTransaction(new CallableWithResultInTransaction<ReportageDTO>() {
+			@Override
+			public ReportageDTO call() {
+				return new ReportageDTO(reportageDao.create(subject, content));
+			}
+		});
+	}
+
+	@Override
+	public void deleteReportage(final ReportageDTO reportage) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				reportageDao.delete(getReportage(reportage));
+			}
+		});
+	}
+
+	@Override
+	public List<ReportageDTO> findReportage(final DetachedCriteria criteria) {
+		return callInTransaction(new CallableWithResultInTransaction<List<ReportageDTO>>() {
+			@Override
+			public List<ReportageDTO> call() {
+				List<Reportage> entityReportages = reportageDao.find(criteria);
+				List<ReportageDTO> reportages = new ArrayList<ReportageDTO>();
+				for (Reportage r : entityReportages)
+					reportages.add(new ReportageDTO(r));
+				return reportages;
+			}
+		});
+	}
+
+	@Override
+	public void updateReportage(final ReportageDTO reportage) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getReportage(reportage).update(reportage);
+			}
+		});
+	}
+
+	@Override
+	public List<Number> getVersionsNumbersOfReportage(
+			final ReportageDTO reportage) {
+		return callInTransaction(new CallableWithResultInTransaction<List<Number>>() {
+			@Override
+			public List<Number> call() {
+				return reportageDao.getVersionsNumbers(getReportage(reportage));
+			}
+		});
+	}
+
+	@Override
+	public ReportageDTO getSpecificVersionOfReportage(
+			final ReportageDTO reportage, final Number version) {
+		return callInTransaction(new CallableWithResultInTransaction<ReportageDTO>() {
+			@Override
+			public ReportageDTO call() {
+				return new ReportageDTO(
+						reportageDao.getSpecificVersionOfReportage(
+								getReportage(reportage), version));
+			}
+		});
 	}
 
 	/* these are the internal helpers */
+
+	private Person getPerson(PersonDTO dto) {
+		return personDao.get(dto.getId());
+	}
+
+	private TvProduction getTvProduction(TvProductionDTO dto) {
+		return tvProductionDao.get(dto.getId());
+	}
+
+	private TvStation getTvStation(TvStationDTO dto) {
+		return tvStationDao.get(dto.getId());
+	}
+
+	private TvWorker getTvWorker(TvWorkerDTO dto) {
+		return tvWorkerDao.get(getPerson(dto.getIdentity()),
+				getTvStation(dto.getEmployer()));
+	}
+
+	private Reporter getReporter(ReporterDTO dto) {
+		return reporterDao.get(getPerson(dto.getIdentity()),
+				getTvStation(dto.getEmployer()));
+	}
+
+	private Actor getActor(ActorDTO dto) {
+		return actorDao.get(getPerson(dto.getIdentity()),
+				getTvStation(dto.getEmployer()));
+	}
+
+	private News getNews(NewsDTO dto) {
+		return newsDao.get(dto.getId());
+	}
+
+	private Reportage getReportage(ReportageDTO dto) {
+		return reportageDao.get(dto.getId());
+	}
 
 	private <R> R callInTransaction(CallableWithResultInTransaction<R> callable) {
 		R result;

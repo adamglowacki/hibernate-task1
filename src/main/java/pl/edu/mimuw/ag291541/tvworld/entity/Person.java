@@ -1,5 +1,7 @@
 package pl.edu.mimuw.ag291541.tvworld.entity;
 
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.PersonDTO;
+
 /**
  * Any man in the TV world.
  * 
@@ -84,5 +86,14 @@ public class Person implements Comparable<Person> {
 	@Override
 	public int compareTo(Person o) {
 		return getPesel().compareTo(o.getPesel());
+	}
+
+	public void update(PersonDTO p) {
+		if (!getName().equals(p.getName()))
+			setName(p.getName());
+		if (!getSurname().equals(p.getSurname()))
+			setSurname(p.getSurname());
+		if (!getPesel().equals(p.getPesel()))
+			setPesel(getPesel());
 	}
 }

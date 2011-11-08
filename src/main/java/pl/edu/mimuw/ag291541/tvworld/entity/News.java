@@ -3,6 +3,8 @@ package pl.edu.mimuw.ag291541.tvworld.entity;
 import java.util.Set;
 import java.util.TreeSet;
 
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.NewsDTO;
+
 public class News extends TvProduction {
 	/**
 	 * A number of people who watched the news.
@@ -14,7 +16,8 @@ public class News extends TvProduction {
 
 	}
 
-	public News(long audience) {
+	public News(String productionName, long audience) {
+		super(productionName);
 		this.audience = audience;
 	}
 
@@ -32,5 +35,11 @@ public class News extends TvProduction {
 
 	public void setReportages(Set<Reportage> reportages) {
 		this.reportages = reportages;
+	}
+
+	public void update(NewsDTO dto) {
+		super.update(dto);
+		if (!(getAudience() != dto.getAudience()))
+			setAudience(dto.getAudience());
 	}
 }

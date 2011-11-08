@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvProductionDTO;
+
 public abstract class TvProduction implements Comparable<TvProduction> {
 	private Long id;
 	/**
@@ -15,6 +17,13 @@ public abstract class TvProduction implements Comparable<TvProduction> {
 	 * TV workers related to the production, besides actors and reporters.
 	 */
 	private Set<TvWorker> staff = new TreeSet<TvWorker>();
+
+	public TvProduction() {
+	}
+
+	public TvProduction(String productionName) {
+		this.productionName = productionName;
+	}
 
 	public Long getId() {
 		return id;
@@ -46,6 +55,13 @@ public abstract class TvProduction implements Comparable<TvProduction> {
 
 	public void setStaff(Set<TvWorker> staff) {
 		this.staff = staff;
+	}
+
+	public void update(TvProductionDTO dto) {
+		if (!getProductionName().equals(dto.getProductionName()))
+			setProductionName(dto.getProductionName());
+		if (!getAiringDate().equals(dto.getAiringDate()))
+			setAiringDate(new TreeSet<Date>(dto.getAiringDate()));
 	}
 
 	@Override

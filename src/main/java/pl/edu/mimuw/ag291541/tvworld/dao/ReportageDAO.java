@@ -13,5 +13,10 @@ public interface ReportageDAO {
 
 	public Reportage get(Long id);
 
+	public List<Number> getVersionsNumbers(Reportage reportage);
+
+	public Reportage getSpecificVersionOfReportage(Reportage reportage,
+			Number version);
+
 	public List<Reportage> find(DetachedCriteria criteria);
 }

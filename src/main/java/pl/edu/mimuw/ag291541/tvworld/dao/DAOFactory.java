@@ -24,4 +24,16 @@ public abstract class DAOFactory {
 	public abstract PersonDAO getPersonDAO();
 
 	public abstract TvProductionDAO getTvProductionDAO();
+
+	public abstract TvWorkerDAO getTvWorkerDAO();
+
+	public abstract TvStationDAO getTvStationDAO();
+
+	public abstract ReporterDAO getReporterDAO();
+
+	public abstract ActorDAO getActorDAO();
+
+	public abstract NewsDAO getNewsDAO();
+
+	public abstract ReportageDAO getReportageDAO();
 }

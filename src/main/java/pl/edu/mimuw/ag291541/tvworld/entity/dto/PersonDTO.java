@@ -43,15 +43,6 @@ public class PersonDTO implements Comparable<PersonDTO> {
 		this.pesel = pesel;
 	}
 
-	public void update(Person entityPerson) {
-		if (!entityPerson.getName().equals(getName()))
-			entityPerson.setName(getName());
-		if (!entityPerson.getSurname().equals(getSurname()))
-			entityPerson.setSurname(getSurname());
-		if (!entityPerson.getPesel().equals(getPesel()))
-			entityPerson.setPesel(getPesel());
-	}
-
 	@Override
 	public int compareTo(PersonDTO o) {
 		return getPesel().compareTo(o.getPesel());

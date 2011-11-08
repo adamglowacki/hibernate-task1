@@ -9,6 +9,10 @@ import pl.edu.mimuw.ag291541.tvworld.entity.TvStation;
 import pl.edu.mimuw.ag291541.tvworld.entity.TvWorker;
 
 public interface TvWorkerDAO {
+	public TvWorker create(Person identity, TvStation employer);
+
+	public void delete(TvWorker tvWorker);
+
 	public TvWorker get(Person identity, TvStation employer);
 
 	public List<TvWorker> find(DetachedCriteria criteria);

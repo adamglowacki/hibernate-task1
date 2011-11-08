@@ -3,6 +3,8 @@ package pl.edu.mimuw.ag291541.tvworld.entity;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.ReportageDTO;
+
 /**
  * Represents a single part of the news TV production.
  * 
@@ -83,5 +85,12 @@ public class Reportage implements Comparable<Reportage> {
 		} else if (!subject.equals(other.subject))
 			return false;
 		return true;
+	}
+
+	public void update(ReportageDTO reportage) {
+		if (!getSubject().equals(reportage.getSubject()))
+			setSubject(reportage.getSubject());
+		if (!getContent().equals(reportage.getContent()))
+			setContent(reportage.getContent());
 	}
 }

@@ -1,8 +1,9 @@
 package pl.edu.mimuw.ag291541.tvworld.entity;
 
-import java.util.Collection;
+import java.util.Set;
 import java.util.TreeSet;
 
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.ReporterDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.type.ReporterSpeciality;
 
 /**
@@ -17,7 +18,7 @@ public class Reporter extends TvWorker {
 	/**
 	 * All the reportages that the reported has produced.
 	 */
-	private Collection<Reportage> reportages = new TreeSet<Reportage>();
+	private Set<Reportage> reportages = new TreeSet<Reportage>();
 
 	public Reporter() {
 
@@ -37,11 +38,16 @@ public class Reporter extends TvWorker {
 		this.speciality = speciality;
 	}
 
-	public Collection<Reportage> getReportages() {
+	public Set<Reportage> getReportages() {
 		return reportages;
 	}
 
-	public void setReportages(Collection<Reportage> reportages) {
+	public void setReportages(Set<Reportage> reportages) {
 		this.reportages = reportages;
+	}
+
+	public void update(ReporterDTO dto) {
+		if (!getSpeciality().equals(dto))
+			setSpeciality(dto.getSpeciality());
 	}
 }
