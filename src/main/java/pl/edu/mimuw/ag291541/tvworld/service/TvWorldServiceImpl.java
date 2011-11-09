@@ -2,7 +2,9 @@ package pl.edu.mimuw.ag291541.tvworld.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.hibernate.criterion.DetachedCriteria;
@@ -470,6 +472,25 @@ public class TvWorldServiceImpl implements TvWorldService {
 	}
 
 	@Override
+	public Map<NewsDTO, Set<ReportageDTO>> presentAllNews() {
+		return callInTransaction(new CallableWithResultInTransaction<Map<NewsDTO, Set<ReportageDTO>>>() {
+			@Override
+			public Map<NewsDTO, Set<ReportageDTO>> call() {
+				List<News> entityNews = newsDao.find(DetachedCriteria
+						.forClass(News.class));
+				Map<NewsDTO, Set<ReportageDTO>> news = new TreeMap<NewsDTO, Set<ReportageDTO>>();
+				for (News n : entityNews) {
+					Set<ReportageDTO> reportages = new TreeSet<ReportageDTO>();
+					for (Reportage r : n.getReportages())
+						reportages.add(new ReportageDTO(r));
+					news.put(new NewsDTO(n), reportages);
+				}
+				return news;
+			}
+		});
+	}
+
+	@Override
 	public ReportageDTO createReportage(final String subject,
 			final String content) {
 		return callInTransaction(new CallableWithResultInTransaction<ReportageDTO>() {
@@ -599,6 +620,34 @@ public class TvWorldServiceImpl implements TvWorldService {
 				getTvSeries(tvSeries).getEpisodes().remove(getEpisode(episode));
 			}
 		});
+	}
+
+	@Override
+	public List<TvSeriesDTO> getLongestByEpisodesTvSeries() {
+		return callInTransaction(new CallableWithResultInTransaction<List<TvSeriesDTO>>() {
+			@Override
+			public List<TvSeriesDTO> call() {
+				List<TvSeries> entityTvSeries = tvSeriesDao
+						.findLongestByEpisodes();
+				List<TvSeriesDTO> tvSeries = new ArrayList<TvSeriesDTO>(
+						entityTvSeries.size());
+				for (TvSeries ts : entityTvSeries)
+					tvSeries.add(new TvSeriesDTO(ts));
+				return tvSeries;
+			}
+		});
+	}
+
+	@Override
+	public TvSeriesDTO getLongestBySeasonsTvSeries() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public NewsDTO getMostPopularNews() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override

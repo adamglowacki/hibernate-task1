@@ -1,6 +1,7 @@
 package pl.edu.mimuw.ag291541.tvworld.testing;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -11,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import pl.edu.mimuw.ag291541.tvworld.entity.Person;
+import pl.edu.mimuw.ag291541.tvworld.entity.Reporter;
 import pl.edu.mimuw.ag291541.tvworld.entity.TvSeries;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.ActorDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.EpisodeDTO;
@@ -188,5 +190,85 @@ public class TvWorldServiceTest {
 						Property.forName("id").eq(tvSeries3.getId())));
 		Assert.assertTrue(nonExistingTvSeries == null
 				|| nonExistingTvSeries.size() == 0);
+	}
+
+	@Test
+	public void testReportageVersions() {
+		TvStationDTO stat4 = service.createTvStation("Stat4");
+		final String poName = "Po", poSurname = "Li Chi", poPesel = "AHJ78_7";
+		PersonDTO po = service.createPerson(poName, poSurname, poPesel);
+		ReporterDTO poReporter = service.createReporter(po,
+				ReporterSpeciality.WILDLIFE, stat4);
+		ReportageDTO reportage1 = service.createReportage("Che Chu Hinchi!",
+				"Che Chi Hinchu");
+		final String peName = "Pe", peSurname = "Lee", pePesel = "5458793";
+		PersonDTO pe = service.createPerson(peName, peSurname, pePesel);
+		ReporterDTO peReporter = service.createReporter(pe,
+				ReporterSpeciality.DOCUMENTARY, stat4);
+		service.addReportageToReporter(poReporter, reportage1);
+		service.addReportageToReporter(peReporter, reportage1);
+		Set<ReporterDTO> reportersByUs = new TreeSet<ReporterDTO>();
+		reportersByUs.add(poReporter);
+		reportersByUs.add(peReporter);
+		Set<ReporterDTO> reportersByService = getReportageAuthors(reportage1);
+		Assert.assertTrue(reportersByService.equals(reportersByUs));
+		/* now let's change the version */
+		reportage1.setContent(reportage1.getContent()
+				+ " A Ala nie ma kota, tylko psa.");
+		service.updateReportage(reportage1);
+		reportersByService = getReportageAuthors(reportage1);
+		Assert.assertTrue(reportersByService.equals(reportersByUs));
+		List<Number> versions = service
+				.getVersionsNumbersOfReportage(reportage1);
+		Assert.assertTrue(versions.size() == 2);
+		ReportageDTO reportage1v2 = service.getSpecificVersionOfReportage(
+				reportage1, versions.get(1));
+		Assert.assertTrue(reportage1.getContent().equals(
+				reportage1v2.getContent()));
+		NewsDTO fastNews = service.createNews("FastNEWS", 9);
+		service.addReportageToNews(fastNews, reportage1v2);
+		Map<NewsDTO, Set<ReportageDTO>> news = service.presentAllNews();
+		Assert.assertTrue(news.containsKey(fastNews));
+		Set<ReportageDTO> reportagesByService = service
+				.getReportagesFromNews(fastNews);
+		Assert.assertTrue(reportagesByService.size() == 1
+				&& reportagesByService.contains(reportage1v2));
+	}
+
+	@SuppressWarnings("unused")
+	@Test
+	public void testSpecialMethods() {
+		TvSeriesDTO abc = service.createTvSeries("Abc1", "Abc");
+		TvSeriesDTO def = service.createTvSeries("Def1", "Def");
+		TvSeriesDTO ghi = service.createTvSeries("Ghi1", "Ghi");
+		EpisodeDTO abcEpisode1 = service.createEpisode(abc, 0, 0);
+		EpisodeDTO abcEpisode2 = service.createEpisode(abc, 0, 1);
+		EpisodeDTO abcEpisode3 = service.createEpisode(abc, 0, 2);
+		EpisodeDTO defEpisode1 = service.createEpisode(def, 1, 0);
+		EpisodeDTO defEpisode2 = service.createEpisode(def, 1, 9);
+		EpisodeDTO defEpisode3 = service.createEpisode(def, 1, 2);
+		EpisodeDTO ghiEpisode1 = service.createEpisode(ghi, 4, 19);
+		EpisodeDTO ghiEpisode2 = service.createEpisode(ghi, 14, 9);
+		List<TvSeriesDTO> longestByEpisodesByService = service
+				.getLongestByEpisodesTvSeries();
+		Assert.assertTrue(longestByEpisodesByService.size() == 2);
+		Assert.assertTrue(longestByEpisodesByService.contains(abc));
+		Assert.assertTrue(longestByEpisodesByService.contains(def));
+	}
+
+	public Set<ReporterDTO> getReportageAuthors(ReportageDTO reportage) {
+		/*
+		 * Because HQL queries are not presented to the service user, we need to
+		 * filter the reporters in an application (in this test we want to
+		 * communicate with the service only).
+		 */
+		List<ReporterDTO> allReporters = service.findReporter(DetachedCriteria
+				.forClass(Reporter.class));
+		Set<ReporterDTO> reportageAuthors = new TreeSet<ReporterDTO>();
+		for (ReporterDTO rd : allReporters) {
+			if (service.getReportagesFromReporter(rd).contains(reportage))
+				reportageAuthors.add(rd);
+		}
+		return reportageAuthors;
 	}
 }

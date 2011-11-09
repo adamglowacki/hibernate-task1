@@ -14,4 +14,8 @@ public interface TvSeriesDAO {
 	public TvSeries get(Long id);
 
 	public List<TvSeries> find(DetachedCriteria criteria);
+
+	public List<TvSeries> findLongestByEpisodes();
+
+	public List<TvSeries> findLongestBySeasons();
 }

@@ -1,6 +1,7 @@
 package pl.edu.mimuw.ag291541.tvworld.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.criterion.DetachedCriteria;
@@ -107,6 +108,15 @@ public interface TvWorldService {
 
 	public void updateNews(NewsDTO news);
 
+	/**
+	 * Presents all the news with the current versions of their reportages.
+	 * 
+	 * @return A map from all the news objects to their current reportages.
+	 */
+	public Map<NewsDTO, Set<ReportageDTO>> presentAllNews();
+
+	public NewsDTO getMostPopularNews();
+
 	public List<NewsDTO> findNews(DetachedCriteria criteria);
 
 	public Set<ReportageDTO> getReportagesFromNews(NewsDTO news);
@@ -138,7 +148,12 @@ public interface TvWorldService {
 
 	public void addEpisodeToTvSeries(TvSeriesDTO tvSeries, EpisodeDTO episode);
 
-	public void removeEpisodeFromTvSeries(TvSeriesDTO tvSeries, EpisodeDTO episode);
+	public void removeEpisodeFromTvSeries(TvSeriesDTO tvSeries,
+			EpisodeDTO episode);
+
+	public TvSeriesDTO getLongestBySeasonsTvSeries();
+
+	public List<TvSeriesDTO> getLongestByEpisodesTvSeries();
 
 	public List<TvSeriesDTO> findTvSeries(DetachedCriteria criteria);
 

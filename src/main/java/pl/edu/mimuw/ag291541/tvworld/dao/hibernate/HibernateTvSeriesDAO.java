@@ -35,4 +35,27 @@ public class HibernateTvSeriesDAO implements TvSeriesDAO {
 				HibernateUtil.getSessionFactory().getCurrentSession()).list();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<TvSeries> findLongestByEpisodes() {
+		Integer max = (Integer) HibernateUtil
+				.getSessionFactory()
+				.getCurrentSession()
+				.createQuery(
+						"select size(a.episodes) as b from TvSeries a order by b")
+				.setMaxResults(1).uniqueResult();
+		return HibernateUtil
+				.getSessionFactory()
+				.getCurrentSession()
+				.createQuery(
+						"from TvSeries a where size(a.episodes) = :maxsize")
+				.setInteger("maxsize", max).list();
+	}
+
+	@Override
+	public List<TvSeries> findLongestBySeasons() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

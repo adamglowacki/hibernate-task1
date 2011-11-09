@@ -42,7 +42,7 @@ public class HibernateReportageDAO implements ReportageDAO {
 			Number version) {
 		AuditReader auditReader = AuditReaderFactory.get(HibernateUtil
 				.getSessionFactory().getCurrentSession());
-		return auditReader.findRevision(Reportage.class, version);
+		return auditReader.find(Reportage.class, reportage.getId(), version);
 	}
 
 	@SuppressWarnings("unchecked")
