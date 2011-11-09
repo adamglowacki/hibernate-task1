@@ -10,28 +10,34 @@ import org.hibernate.criterion.DetachedCriteria;
 import pl.edu.mimuw.ag291541.tvworld.dao.ActorDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.DAOFactory;
 import pl.edu.mimuw.ag291541.tvworld.dao.DAOFactory.DAOFactoryType;
+import pl.edu.mimuw.ag291541.tvworld.dao.EpisodeDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.NewsDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.PersonDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.ReportageDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.ReporterDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.TvProductionDAO;
+import pl.edu.mimuw.ag291541.tvworld.dao.TvSeriesDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.TvStationDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.TvWorkerDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.util.HibernateUtil;
 import pl.edu.mimuw.ag291541.tvworld.entity.Actor;
+import pl.edu.mimuw.ag291541.tvworld.entity.Episode;
 import pl.edu.mimuw.ag291541.tvworld.entity.News;
 import pl.edu.mimuw.ag291541.tvworld.entity.Person;
 import pl.edu.mimuw.ag291541.tvworld.entity.Reportage;
 import pl.edu.mimuw.ag291541.tvworld.entity.Reporter;
 import pl.edu.mimuw.ag291541.tvworld.entity.TvProduction;
+import pl.edu.mimuw.ag291541.tvworld.entity.TvSeries;
 import pl.edu.mimuw.ag291541.tvworld.entity.TvStation;
 import pl.edu.mimuw.ag291541.tvworld.entity.TvWorker;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.ActorDTO;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.EpisodeDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.NewsDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.PersonDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.ReportageDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.ReporterDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvProductionDTO;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvSeriesDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvStationDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvWorkerDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.type.ActorRating;
@@ -47,6 +53,8 @@ public class TvWorldServiceImpl implements TvWorldService {
 	private ActorDAO actorDao;
 	private NewsDAO newsDao;
 	private ReportageDAO reportageDao;
+	private TvSeriesDAO tvSeriesDao;
+	private EpisodeDAO episodeDao;
 
 	private TvWorldServiceImpl() {
 		DAOFactory daoFactory = DAOFactory
@@ -59,6 +67,8 @@ public class TvWorldServiceImpl implements TvWorldService {
 		actorDao = daoFactory.getActorDAO();
 		newsDao = daoFactory.getNewsDAO();
 		reportageDao = daoFactory.getReportageDAO();
+		tvSeriesDao = daoFactory.getTvSeriesDAO();
+		episodeDao = daoFactory.getEpisodeDAO();
 	}
 
 	public static TvWorldServiceImpl getInstance() {
@@ -401,22 +411,12 @@ public class TvWorldServiceImpl implements TvWorldService {
 
 	@Override
 	public void deleteNews(final NewsDTO news) {
-		callInTransaction(new CallableInTransaction() {
-			@Override
-			public void call() {
-				newsDao.delete(getNews(news));
-			}
-		});
+		deleteTvProduction(news);
 	}
 
 	@Override
 	public void updateNews(final NewsDTO news) {
-		callInTransaction(new CallableInTransaction() {
-			@Override
-			public void call() {
-				getNews(news).update(news);
-			}
-		});
+		updateTvProduction(news);
 	}
 
 	@Override
@@ -538,6 +538,131 @@ public class TvWorldServiceImpl implements TvWorldService {
 		});
 	}
 
+	@Override
+	public TvSeriesDTO createTvSeries(final String productionName,
+			final String title) {
+		return callInTransaction(new CallableWithResultInTransaction<TvSeriesDTO>() {
+			@Override
+			public TvSeriesDTO call() {
+				return new TvSeriesDTO(
+						tvSeriesDao.create(productionName, title));
+			}
+		});
+	}
+
+	@Override
+	public void deleteTvSeries(final TvSeriesDTO tvSeries) {
+		/*
+		 * But <code>TvSeriesDTO</code> is <code>TvProductionDTO</code>. Let's
+		 * make use of it.
+		 */
+		deleteTvProduction(tvSeries);
+	}
+
+	@Override
+	public void updateTvSeries(TvSeriesDTO tvSeries) {
+		updateTvProduction(tvSeries);
+	}
+
+	@Override
+	public Set<EpisodeDTO> getEpisodesFromTvSeries(final TvSeriesDTO tvSeries) {
+		return callInTransaction(new CallableWithResultInTransaction<Set<EpisodeDTO>>() {
+			@Override
+			public Set<EpisodeDTO> call() {
+				Set<Episode> entityEpisodes = getTvSeries(tvSeries)
+						.getEpisodes();
+				Set<EpisodeDTO> episodes = new TreeSet<EpisodeDTO>();
+				for (Episode e : entityEpisodes)
+					episodes.add(new EpisodeDTO(e));
+				return episodes;
+			}
+		});
+	}
+
+	@Override
+	public void addEpisodeToTvSeries(final TvSeriesDTO tvSeries,
+			final EpisodeDTO episode) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getTvSeries(tvSeries).getEpisodes().add(getEpisode(episode));
+			}
+		});
+	}
+
+	@Override
+	public void removeEpisodeFromTvSeries(final TvSeriesDTO tvSeries,
+			final EpisodeDTO episode) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getTvSeries(tvSeries).getEpisodes().remove(getEpisode(episode));
+			}
+		});
+	}
+
+	@Override
+	public List<TvSeriesDTO> findTvSeries(final DetachedCriteria criteria) {
+		return callInTransaction(new CallableWithResultInTransaction<List<TvSeriesDTO>>() {
+			@Override
+			public List<TvSeriesDTO> call() {
+				List<TvSeries> entityTvSeries = tvSeriesDao.find(criteria);
+				List<TvSeriesDTO> tvSeries = new ArrayList<TvSeriesDTO>(
+						entityTvSeries.size());
+				for (TvSeries ts : entityTvSeries)
+					tvSeries.add(new TvSeriesDTO(ts));
+				return null;
+			}
+		});
+	}
+
+	@Override
+	public EpisodeDTO createEpisode(final TvSeriesDTO tvSeries,
+			final long season, final long number) {
+		return callInTransaction(new CallableWithResultInTransaction<EpisodeDTO>() {
+			@Override
+			public EpisodeDTO call() {
+				return new EpisodeDTO(episodeDao.create(getTvSeries(tvSeries),
+						season, number));
+			}
+		});
+	}
+
+	@Override
+	public void deleteEpisode(final EpisodeDTO episode) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				episodeDao.delete(getEpisode(episode));
+			}
+		});
+	}
+
+	@Override
+	public void updateEpisode(final EpisodeDTO episode) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getEpisode(episode).update(episode, tvSeriesDao);
+			}
+		});
+	}
+
+	@Override
+	public List<EpisodeDTO> findEpisode(final DetachedCriteria criteria) {
+		return callInTransaction(new CallableWithResultInTransaction<List<EpisodeDTO>>() {
+			@Override
+			public List<EpisodeDTO> call() {
+				List<Episode> entityEpisodes = episodeDao.find(criteria);
+				List<EpisodeDTO> episodes = new ArrayList<EpisodeDTO>(
+						entityEpisodes.size());
+				for (Episode e : entityEpisodes)
+					episodes.add(new EpisodeDTO(e));
+				return episodes;
+			}
+		});
+	}
+
 	/* these are the internal helpers */
 
 	private Person getPerson(PersonDTO dto) {
@@ -573,6 +698,14 @@ public class TvWorldServiceImpl implements TvWorldService {
 
 	private Reportage getReportage(ReportageDTO dto) {
 		return reportageDao.get(dto.getId());
+	}
+
+	private TvSeries getTvSeries(TvSeriesDTO dto) {
+		return tvSeriesDao.get(dto.getId());
+	}
+
+	private Episode getEpisode(EpisodeDTO dto) {
+		return episodeDao.get(dto.getId());
 	}
 
 	private <R> R callInTransaction(CallableWithResultInTransaction<R> callable) {

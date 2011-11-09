@@ -1,5 +1,8 @@
 package pl.edu.mimuw.ag291541.tvworld.entity;
 
+import pl.edu.mimuw.ag291541.tvworld.dao.TvSeriesDAO;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.EpisodeDTO;
+
 public class Episode implements Comparable<Episode> {
 	private Long id;
 	/**
@@ -50,6 +53,18 @@ public class Episode implements Comparable<Episode> {
 
 	public void setNumber(long number) {
 		this.number = number;
+	}
+
+	public void update(EpisodeDTO dto, TvSeriesDAO tvSeriesDao) {
+		/* Maybe user has changed the <code>tvSeries</code> object. */
+		getTvSeries().update(dto.getTvSeries());
+		if (!getTvSeries().equals(dto.getTvSeries()))
+			/* user has changed relation */
+			setTvSeries(tvSeriesDao.get(dto.getTvSeries().getId()));
+		if (getSeason() != dto.getSeason())
+			setSeason(dto.getSeason());
+		if (getNumber() != dto.getNumber())
+			setNumber(dto.getNumber());
 	}
 
 	@Override

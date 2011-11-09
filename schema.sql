@@ -206,18 +206,6 @@ CREATE TABLE tvseries (
 ALTER TABLE public.tvseries OWNER TO hibernate;
 
 --
--- Name: tvseries_episode; Type: TABLE; Schema: public; Owner: hibernate; Tablespace: 
---
-
-CREATE TABLE tvseries_episode (
-    tvseries_id bigint NOT NULL,
-    episode_id bigint NOT NULL
-);
-
-
-ALTER TABLE public.tvseries_episode OWNER TO hibernate;
-
---
 -- Name: tvstation; Type: TABLE; Schema: public; Owner: hibernate; Tablespace: 
 --
 
@@ -357,22 +345,6 @@ ALTER TABLE ONLY tvproduction_tvworker
 
 
 --
--- Name: tvseries_episode_episode_id_key; Type: CONSTRAINT; Schema: public; Owner: hibernate; Tablespace: 
---
-
-ALTER TABLE ONLY tvseries_episode
-    ADD CONSTRAINT tvseries_episode_episode_id_key UNIQUE (episode_id);
-
-
---
--- Name: tvseries_episode_pkey; Type: CONSTRAINT; Schema: public; Owner: hibernate; Tablespace: 
---
-
-ALTER TABLE ONLY tvseries_episode
-    ADD CONSTRAINT tvseries_episode_pkey PRIMARY KEY (tvseries_id, episode_id);
-
-
---
 -- Name: tvseries_pkey; Type: CONSTRAINT; Schema: public; Owner: hibernate; Tablespace: 
 --
 
@@ -413,14 +385,6 @@ ALTER TABLE ONLY actor_episode
 
 
 --
--- Name: episode_fk; Type: FK CONSTRAINT; Schema: public; Owner: hibernate
---
-
-ALTER TABLE ONLY tvseries_episode
-    ADD CONSTRAINT episode_fk FOREIGN KEY (episode_id) REFERENCES episode(episode_id);
-
-
---
 -- Name: fk2892379cdf74e053; Type: FK CONSTRAINT; Schema: public; Owner: hibernate
 --
 
@@ -429,19 +393,11 @@ ALTER TABLE ONLY reportage_aud
 
 
 --
--- Name: fke9c9734766e37788; Type: FK CONSTRAINT; Schema: public; Owner: hibernate
+-- Name: news_fk; Type: FK CONSTRAINT; Schema: public; Owner: hibernate
 --
 
 ALTER TABLE ONLY reportage_news
-    ADD CONSTRAINT fke9c9734766e37788 FOREIGN KEY (reportage_id) REFERENCES reportage(reportage_id);
-
-
---
--- Name: fke9c97347b93d7a6c; Type: FK CONSTRAINT; Schema: public; Owner: hibernate
---
-
-ALTER TABLE ONLY reportage_news
-    ADD CONSTRAINT fke9c97347b93d7a6c FOREIGN KEY (news_id) REFERENCES news(tvproduction_id);
+    ADD CONSTRAINT news_fk FOREIGN KEY (news_id) REFERENCES news(tvproduction_id);
 
 
 --
@@ -450,6 +406,14 @@ ALTER TABLE ONLY reportage_news
 
 ALTER TABLE ONLY tvworker
     ADD CONSTRAINT person_fk FOREIGN KEY (tvworker_identity) REFERENCES person(person_id);
+
+
+--
+-- Name: reportage_fk; Type: FK CONSTRAINT; Schema: public; Owner: hibernate
+--
+
+ALTER TABLE ONLY reportage_news
+    ADD CONSTRAINT reportage_fk FOREIGN KEY (reportage_id) REFERENCES reportage(reportage_id);
 
 
 --
@@ -498,14 +462,6 @@ ALTER TABLE ONLY tvseries
 
 ALTER TABLE ONLY episode
     ADD CONSTRAINT tvseries_fk FOREIGN KEY (episode_tvseries) REFERENCES tvseries(tvseries_tvproduction);
-
-
---
--- Name: tvseries_fk; Type: FK CONSTRAINT; Schema: public; Owner: hibernate
---
-
-ALTER TABLE ONLY tvseries_episode
-    ADD CONSTRAINT tvseries_fk FOREIGN KEY (tvseries_id) REFERENCES tvseries(tvseries_tvproduction);
 
 
 --

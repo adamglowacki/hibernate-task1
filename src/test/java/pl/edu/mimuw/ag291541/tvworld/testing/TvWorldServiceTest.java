@@ -11,11 +11,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import pl.edu.mimuw.ag291541.tvworld.entity.Person;
+import pl.edu.mimuw.ag291541.tvworld.entity.TvSeries;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.ActorDTO;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.EpisodeDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.NewsDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.PersonDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.ReportageDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.ReporterDTO;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvSeriesDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvStationDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvWorkerDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.type.ActorRating;
@@ -163,5 +166,27 @@ public class TvWorldServiceTest {
 		newsWorkersByUs.add(pigletWorker);
 		newsWorkersByUs.add(eeyoreActor);
 		Assert.assertTrue(newsWorkersByService.equals(newsWorkersByUs));
+		TvSeriesDTO tvSeries3 = service.createTvSeries("BGTHW12",
+				"Forest, Big Forest");
+		EpisodeDTO episode3_1_1 = service.createEpisode(tvSeries3, 1, 1);
+		EpisodeDTO episode3_1_2 = service.createEpisode(tvSeries3, 1, 2);
+		EpisodeDTO episode3_19_2 = service.createEpisode(tvSeries3, 19, 2);
+		Set<EpisodeDTO> episodesByService = service
+				.getEpisodesFromTvSeries(tvSeries3);
+		Set<EpisodeDTO> episodesByUs = new TreeSet<EpisodeDTO>();
+		episodesByUs.add(episode3_1_1);
+		episodesByUs.add(episode3_19_2);
+		episodesByUs.add(episode3_1_2);
+		Assert.assertTrue(episodesByUs.equals(episodesByService));
+		service.removeEpisodeFromTvSeries(tvSeries3, episode3_1_2);
+		episodesByUs.remove(episode3_1_2);
+		episodesByService = service.getEpisodesFromTvSeries(tvSeries3);
+		Assert.assertTrue(episodesByService.equals(episodesByUs));
+		service.deleteTvSeries(tvSeries3);
+		List<TvSeriesDTO> nonExistingTvSeries = service
+				.findTvSeries(DetachedCriteria.forClass(TvSeries.class).add(
+						Property.forName("id").eq(tvSeries3.getId())));
+		Assert.assertTrue(nonExistingTvSeries == null
+				|| nonExistingTvSeries.size() == 0);
 	}
 }

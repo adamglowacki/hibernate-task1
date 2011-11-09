@@ -6,11 +6,13 @@ import java.util.Set;
 import org.hibernate.criterion.DetachedCriteria;
 
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.ActorDTO;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.EpisodeDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.NewsDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.PersonDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.ReportageDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.ReporterDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvProductionDTO;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvSeriesDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvStationDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvWorkerDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.type.ActorRating;
@@ -125,4 +127,27 @@ public interface TvWorldService {
 			Number version);
 
 	public List<ReportageDTO> findReportage(DetachedCriteria criteria);
+
+	public TvSeriesDTO createTvSeries(String productionName, String title);
+
+	public void deleteTvSeries(TvSeriesDTO tvSeries);
+
+	public void updateTvSeries(TvSeriesDTO tvSeries);
+
+	public Set<EpisodeDTO> getEpisodesFromTvSeries(TvSeriesDTO tvSeries);
+
+	public void addEpisodeToTvSeries(TvSeriesDTO tvSeries, EpisodeDTO episode);
+
+	public void removeEpisodeFromTvSeries(TvSeriesDTO tvSeries, EpisodeDTO episode);
+
+	public List<TvSeriesDTO> findTvSeries(DetachedCriteria criteria);
+
+	public EpisodeDTO createEpisode(TvSeriesDTO tvSeries, long season,
+			long number);
+
+	public void deleteEpisode(EpisodeDTO episode);
+
+	public void updateEpisode(EpisodeDTO episode);
+
+	public List<EpisodeDTO> findEpisode(DetachedCriteria criteria);
 }

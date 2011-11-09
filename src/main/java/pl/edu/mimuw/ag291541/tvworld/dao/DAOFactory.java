@@ -36,4 +36,8 @@ public abstract class DAOFactory {
 	public abstract NewsDAO getNewsDAO();
 
 	public abstract ReportageDAO getReportageDAO();
+
+	public abstract TvSeriesDAO getTvSeriesDAO();
+
+	public abstract EpisodeDAO getEpisodeDAO();
 }

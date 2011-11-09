@@ -24,18 +24,18 @@
 		<joined-subclass name="TvSeries" table="tvseries">
 			<key column="tvseries_tvproduction" foreign-key="tvproduction_fk" />
 			<property name="title" column="tvseries_title" />
-			<set name="episodes" table="tvseries_episode">
-				<key column="tvseries_id" foreign-key="tvseries_fk" />
-				<many-to-many class="Episode" column="episode_id"
-					unique="true" foreign-key="episode_fk" />
+			<set name="episodes">
+				<key column="episode_tvseries" />
+				<one-to-many class="Episode" />
 			</set>
 		</joined-subclass>
 		<joined-subclass name="News">
 			<key column="tvproduction_id" foreign-key="tvproduction_fk" />
 			<property name="audience" />
 			<set name="reportages" table="reportage_news">
-				<key column="news_id" />
-				<many-to-many class="Reportage" column="reportage_id" />
+				<key column="news_id" foreign-key="news_fk" />
+				<many-to-many class="Reportage" column="reportage_id"
+					foreign-key="reportage_fk" />
 			</set>
 		</joined-subclass>
 	</class>

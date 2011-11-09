@@ -2,11 +2,13 @@ package pl.edu.mimuw.ag291541.tvworld.dao.hibernate;
 
 import pl.edu.mimuw.ag291541.tvworld.dao.ActorDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.DAOFactory;
+import pl.edu.mimuw.ag291541.tvworld.dao.EpisodeDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.NewsDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.PersonDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.ReportageDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.ReporterDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.TvProductionDAO;
+import pl.edu.mimuw.ag291541.tvworld.dao.TvSeriesDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.TvStationDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.TvWorkerDAO;
 
@@ -50,5 +52,15 @@ public class HibernateDAOFactory extends DAOFactory {
 	@Override
 	public ReportageDAO getReportageDAO() {
 		return new HibernateReportageDAO();
+	}
+
+	@Override
+	public TvSeriesDAO getTvSeriesDAO() {
+		return new HibernateTvSeriesDAO();
+	}
+
+	@Override
+	public EpisodeDAO getEpisodeDAO() {
+		return new HibernateEpisodeDAO();
 	}
 }

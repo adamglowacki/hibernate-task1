@@ -11,7 +11,8 @@ public class TvSeries extends TvProduction {
 
 	}
 
-	public TvSeries(String title) {
+	public TvSeries(String productionName, String title) {
+		super(productionName);
 		this.title = title;
 	}
 
