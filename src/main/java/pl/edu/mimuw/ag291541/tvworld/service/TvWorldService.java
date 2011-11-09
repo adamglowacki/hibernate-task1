@@ -151,7 +151,7 @@ public interface TvWorldService {
 	public void removeEpisodeFromTvSeries(TvSeriesDTO tvSeries,
 			EpisodeDTO episode);
 
-	public TvSeriesDTO getLongestBySeasonsTvSeries();
+	public List<TvSeriesDTO> getLongestBySeasonsTvSeries();
 
 	public List<TvSeriesDTO> getLongestByEpisodesTvSeries();
 

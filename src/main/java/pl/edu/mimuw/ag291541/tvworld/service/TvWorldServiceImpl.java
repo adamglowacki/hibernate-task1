@@ -639,9 +639,19 @@ public class TvWorldServiceImpl implements TvWorldService {
 	}
 
 	@Override
-	public TvSeriesDTO getLongestBySeasonsTvSeries() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<TvSeriesDTO> getLongestBySeasonsTvSeries() {
+		return callInTransaction(new CallableWithResultInTransaction<List<TvSeriesDTO>>() {
+			@Override
+			public List<TvSeriesDTO> call() {
+				List<TvSeries> entityTvSeries = tvSeriesDao
+						.findLongestBySeasons();
+				List<TvSeriesDTO> tvSeries = new ArrayList<TvSeriesDTO>(
+						entityTvSeries.size());
+				for (TvSeries ts : entityTvSeries)
+					tvSeries.add(new TvSeriesDTO(ts));
+				return tvSeries;
+			}
+		});
 	}
 
 	@Override

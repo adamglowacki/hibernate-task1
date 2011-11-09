@@ -254,6 +254,10 @@ public class TvWorldServiceTest {
 		Assert.assertTrue(longestByEpisodesByService.size() == 2);
 		Assert.assertTrue(longestByEpisodesByService.contains(abc));
 		Assert.assertTrue(longestByEpisodesByService.contains(def));
+		List<TvSeriesDTO> longestBySeasonsByService = service
+				.getLongestBySeasonsTvSeries();
+		Assert.assertTrue(longestBySeasonsByService.size() == 1);
+		Assert.assertTrue(longestBySeasonsByService.contains(ghi));
 	}
 
 	public Set<ReporterDTO> getReportageAuthors(ReportageDTO reportage) {
