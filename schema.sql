@@ -70,12 +70,24 @@ ALTER TABLE public.hibernate_sequence OWNER TO hibernate;
 --
 
 CREATE TABLE news (
-    tvproduction_id bigint NOT NULL,
-    audience bigint
+    tvproduction_id bigint NOT NULL
 );
 
 
 ALTER TABLE public.news OWNER TO hibernate;
+
+--
+-- Name: news_audience; Type: TABLE; Schema: public; Owner: hibernate; Tablespace: 
+--
+
+CREATE TABLE news_audience (
+    tvproduction_id bigint NOT NULL,
+    news_audience bigint,
+    audience_index integer NOT NULL
+);
+
+
+ALTER TABLE public.news_audience OWNER TO hibernate;
 
 --
 -- Name: person; Type: TABLE; Schema: public; Owner: hibernate; Tablespace: 
@@ -249,6 +261,14 @@ ALTER TABLE ONLY episode
 
 
 --
+-- Name: news_audience_pkey; Type: CONSTRAINT; Schema: public; Owner: hibernate; Tablespace: 
+--
+
+ALTER TABLE ONLY news_audience
+    ADD CONSTRAINT news_audience_pkey PRIMARY KEY (tvproduction_id, audience_index);
+
+
+--
 -- Name: news_pkey; Type: CONSTRAINT; Schema: public; Owner: hibernate; Tablespace: 
 --
 
@@ -390,6 +410,14 @@ ALTER TABLE ONLY actor_episode
 
 ALTER TABLE ONLY reportage_aud
     ADD CONSTRAINT fk2892379cdf74e053 FOREIGN KEY (rev) REFERENCES revinfo(rev);
+
+
+--
+-- Name: news_fk; Type: FK CONSTRAINT; Schema: public; Owner: hibernate
+--
+
+ALTER TABLE ONLY news_audience
+    ADD CONSTRAINT news_fk FOREIGN KEY (tvproduction_id) REFERENCES news(tvproduction_id);
 
 
 --

@@ -138,7 +138,7 @@ public class TvWorldServiceImpl implements TvWorldService {
 		callInTransaction(new CallableInTransaction() {
 			@Override
 			public void call() {
-				tvProduction.update(getTvProduction(tvProduction));
+				getTvProduction(tvProduction).update(tvProduction);
 			}
 		});
 	}
@@ -355,7 +355,7 @@ public class TvWorldServiceImpl implements TvWorldService {
 		callInTransaction(new CallableInTransaction() {
 			@Override
 			public void call() {
-				getReporter(reporter).getReportages().remove(reportage);
+				getReporter(reporter).getReportages().remove(getReportage(reportage));
 			}
 		});
 	}
@@ -417,11 +417,11 @@ public class TvWorldServiceImpl implements TvWorldService {
 	}
 
 	@Override
-	public NewsDTO createNews(final String productionName, final long audience) {
+	public NewsDTO createNews(final String productionName) {
 		return callInTransaction(new CallableWithResultInTransaction<NewsDTO>() {
 			@Override
 			public NewsDTO call() {
-				return new NewsDTO(newsDao.create(productionName, audience));
+				return new NewsDTO(newsDao.create(productionName));
 			}
 		});
 	}
@@ -433,7 +433,12 @@ public class TvWorldServiceImpl implements TvWorldService {
 
 	@Override
 	public void updateNews(final NewsDTO news) {
-		updateTvProduction(news);
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getNews(news).update(news);
+			}
+		});
 	}
 
 	@Override
@@ -596,7 +601,13 @@ public class TvWorldServiceImpl implements TvWorldService {
 	}
 
 	@Override
-	public void updateTvSeries(TvSeriesDTO tvSeries) {
+	public void updateTvSeries(final TvSeriesDTO tvSeries) {
+		callInTransaction(new CallableInTransaction() {
+			@Override
+			public void call() {
+				getTvSeries(tvSeries).update(tvSeries);
+			}
+		});
 		updateTvProduction(tvSeries);
 	}
 
@@ -675,6 +686,20 @@ public class TvWorldServiceImpl implements TvWorldService {
 			@Override
 			public List<NewsDTO> call() {
 				List<News> entityNews = newsDao.getMostPopular();
+				List<NewsDTO> news = new ArrayList<NewsDTO>(entityNews.size());
+				for (News n : entityNews)
+					news.add(new NewsDTO(n));
+				return news;
+			}
+		});
+	}
+
+	@Override
+	public List<NewsDTO> getMostPopularInAverageNews() {
+		return callInTransaction(new CallableWithResultInTransaction<List<NewsDTO>>() {
+			@Override
+			public List<NewsDTO> call() {
+				List<News> entityNews = newsDao.getMostPopularInAverage();
 				List<NewsDTO> news = new ArrayList<NewsDTO>(entityNews.size());
 				for (News n : entityNews)
 					news.add(new NewsDTO(n));
@@ -789,13 +814,6 @@ public class TvWorldServiceImpl implements TvWorldService {
 	private Episode getEpisode(EpisodeDTO dto) {
 		return episodeDao.get(dto.getId());
 	}
-
-	// private <R, T> List<R> transformToDTO(List<T> entities) {
-	// List<R> dtos = new ArrayList<R>(entities.size());
-	// for (T entity : entities)
-	// dtos.add(new R(entity));
-	// return dtos;
-	// }
 
 	private <R> R callInTransaction(CallableWithResultInTransaction<R> callable) {
 		R result;

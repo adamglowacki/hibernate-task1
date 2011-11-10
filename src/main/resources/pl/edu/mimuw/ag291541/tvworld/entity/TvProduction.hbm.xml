@@ -31,7 +31,11 @@
 		</joined-subclass>
 		<joined-subclass name="News">
 			<key column="tvproduction_id" foreign-key="tvproduction_fk" />
-			<property name="audience" />
+			<list name="audience" table="news_audience">
+				<key column="tvproduction_id" foreign-key="news_fk" />
+				<list-index column="audience_index" />
+				<element column="news_audience" type="long" />
+			</list>
 			<set name="reportages" table="reportage_news">
 				<key column="news_id" foreign-key="news_fk" />
 				<many-to-many class="Reportage" column="reportage_id"

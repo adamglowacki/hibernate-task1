@@ -67,12 +67,4 @@ public class TvProductionDTO implements Comparable<TvProductionDTO> {
 			return false;
 		return true;
 	}
-
-	public void update(TvProduction tvProduction) {
-		if (!getProductionName().equals(tvProduction.getProductionName()))
-			tvProduction.setProductionName(getProductionName());
-		if (!getAiringDate().equals(tvProduction.getAiringDate()))
-			tvProduction.setAiringDate(new TreeSet<Date>(getAiringDate()));
-	}
-
 }

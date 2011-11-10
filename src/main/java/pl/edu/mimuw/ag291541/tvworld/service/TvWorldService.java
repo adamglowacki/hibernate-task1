@@ -104,7 +104,7 @@ public interface TvWorldService {
 
 	public List<ActorDTO> findActor(DetachedCriteria criteria);
 
-	public NewsDTO createNews(String productionName, long audience);
+	public NewsDTO createNews(String productionName);
 
 	public void deleteNews(NewsDTO news);
 
@@ -118,6 +118,8 @@ public interface TvWorldService {
 	public Map<NewsDTO, Set<ReportageDTO>> presentAllNews();
 
 	public List<NewsDTO> getMostPopularNews();
+
+	public List<NewsDTO> getMostPopularInAverageNews();
 
 	public List<NewsDTO> findNews(DetachedCriteria criteria);
 

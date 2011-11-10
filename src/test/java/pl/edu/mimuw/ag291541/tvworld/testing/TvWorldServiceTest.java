@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.edu.mimuw.ag291541.tvworld.entity.Person;
 import pl.edu.mimuw.ag291541.tvworld.entity.Reporter;
+import pl.edu.mimuw.ag291541.tvworld.entity.TvProduction;
 import pl.edu.mimuw.ag291541.tvworld.entity.TvSeries;
 import pl.edu.mimuw.ag291541.tvworld.entity.TvStation;
 import pl.edu.mimuw.ag291541.tvworld.entity.TvWorker;
@@ -23,6 +24,7 @@ import pl.edu.mimuw.ag291541.tvworld.entity.dto.NewsDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.PersonDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.ReportageDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.ReporterDTO;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvProductionDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvSeriesDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvStationDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvWorkerDTO;
@@ -165,6 +167,84 @@ public class TvWorldServiceTest {
 	}
 
 	@Test
+	public void deleteTvStation() {
+		TvStationDTO tdp = service
+				.createTvStation("Telewizja dla Pomarańczowych");
+		DetachedCriteria getStations = DetachedCriteria.forClass(
+				TvStation.class).add(Property.forName("id").eq(tdp.getId()));
+		List<TvStationDTO> stations = service.findTvStation(getStations);
+		Assert.assertTrue(stations.size() == 1);
+		Assert.assertTrue(stations.get(0).equals(tdp));
+		service.deleteTvStation(tdp);
+		stations = service.findTvStation(getStations);
+		Assert.assertTrue(stations == null || stations.size() == 0);
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Deleting TV stations works.");
+	}
+
+	@Test
+	public void deleteTvProduction() {
+		NewsDTO news = service.createNews("NextNEWS");
+		service.deleteTvProduction(news);
+		List<TvProductionDTO> productions = service
+				.findTvProduction(DetachedCriteria.forClass(TvProduction.class)
+						.add(Property.forName("id").eq(news.getId())));
+		Assert.assertTrue(productions == null | productions.size() == 0);
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Deleting TV productions works.");
+	}
+
+	@Test
+	public void deleteReporter() {
+		PersonDTO krzysztof = service.createPerson("Krzysztof", "Długi",
+				"8171276876123");
+		TvStationDTO tdr = service.createTvStation("Telewizja dla Różowych");
+		ReporterDTO krzysztofReporter = service.createReporter(krzysztof,
+				ReporterSpeciality.WILDLIFE, tdr);
+		DetachedCriteria getKrzysztofReporter = DetachedCriteria
+				.forClass(Reporter.class)
+				.add(Property.forName("identity.id").eq(
+						krzysztofReporter.getIdentity().getId()))
+				.add(Property.forName("employer.id").eq(
+						krzysztofReporter.getEmployer().getId()));
+		List<ReporterDTO> reporters = service
+				.findReporter(getKrzysztofReporter);
+		Assert.assertTrue(reporters.size() == 1);
+		Assert.assertTrue(reporters.get(0).equals(krzysztofReporter));
+		service.deleteReporter(krzysztofReporter);
+		reporters = service.findReporter(getKrzysztofReporter);
+		Assert.assertTrue(reporters == null || reporters.size() == 0);
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Deleting reporters is ok.");
+	}
+
+	@Test
+	public void updateReporter() {
+		PersonDTO jakub = service.createPerson("Jakub", "Długi",
+				"8171276876124");
+		TvStationDTO tdr = service.createTvStation("Telewizja dla Rybaków");
+		ReporterSpeciality jakubSpecialityFirst = ReporterSpeciality.TALK_SHOW;
+		ReporterSpeciality jakubSpecialitySecond = ReporterSpeciality.MUSIC;
+		ReporterDTO jakubReporter = service.createReporter(jakub,
+				jakubSpecialityFirst, tdr);
+		jakubReporter.setSpeciality(jakubSpecialitySecond);
+		service.updateReporter(jakubReporter);
+		DetachedCriteria getJakubReporter = DetachedCriteria
+				.forClass(Reporter.class)
+				.add(Property.forName("identity.id").eq(
+						jakubReporter.getIdentity().getId()))
+				.add(Property.forName("employer.id").eq(
+						jakubReporter.getEmployer().getId()));
+		List<ReporterDTO> reporters = service.findReporter(getJakubReporter);
+		Assert.assertTrue(reporters.size() == 1);
+		Assert.assertTrue(reporters.get(0).equals(jakubReporter));
+		Assert.assertTrue(reporters.get(0).getSpeciality()
+				.equals(jakubReporter.getSpeciality()));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Updating reporters is ok.");
+	}
+
+	@Test
 	public void retrieveWorkersFromTvStationSide() {
 		TvStationDTO tdz = service.createTvStation("Telewizja Dla Zielonych");
 		final String wincentyName = "Wincenty", wincentySurname = "Kapusta", wincentyPesel = "181920212322";
@@ -232,7 +312,7 @@ public class TvWorldServiceTest {
 				ActorRating.EXCELLENT, stat3);
 		PersonDTO piglet = service.createPerson("Piglet", "Small", "8798");
 		TvWorkerDTO pigletWorker = service.createTvWorker(piglet, stat3);
-		NewsDTO news = service.createNews("Super-Express", 45000);
+		NewsDTO news = service.createNews("Super-Express");
 		ReportageDTO reportage1 = service
 				.createReportage(
 						"Trees in a forest",
@@ -244,6 +324,19 @@ public class TvWorldServiceTest {
 		service.addReportageToReporter(kangaReporter, reportage1);
 		service.addReportageToReporter(winnieReporter, reportage1);
 		service.addReportageToReporter(winnieReporter, reportage2);
+		Set<ReportageDTO> winnieReportagesByService = service
+				.getReportagesFromReporter(winnieReporter);
+		Set<ReportageDTO> winnieReportagesByUs = new TreeSet<ReportageDTO>();
+		winnieReportagesByUs.add(reportage1);
+		winnieReportagesByUs.add(reportage2);
+		Assert.assertTrue(winnieReportagesByService
+				.equals(winnieReportagesByUs));
+		service.removeReportageFromReporter(winnieReporter, reportage2);
+		winnieReportagesByUs.remove(reportage2);
+		winnieReportagesByService = service
+				.getReportagesFromReporter(winnieReporter);
+		Assert.assertTrue(winnieReportagesByUs
+				.equals(winnieReportagesByService));
 		service.addReportageToNews(news, reportage1);
 		service.addReportageToNews(news, reportage2);
 		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
@@ -263,8 +356,12 @@ public class TvWorldServiceTest {
 		newsWorkersByUs.add(pigletWorker);
 		newsWorkersByUs.add(eeyoreActor);
 		Assert.assertTrue(newsWorkersByService.equals(newsWorkersByUs));
+		service.removeStaffMemberFromTvProduction(news, winnieReporter);
+		newsWorkersByService = service.getStaffFromTvProduction(news);
+		newsWorkersByUs.remove(winnieReporter);
+		Assert.assertTrue(newsWorkersByUs.equals(newsWorkersByService));
 		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Adding workers to TV production is ok.");
+				"Adding/removing workers to TV production is ok.");
 		TvSeriesDTO tvSeries3 = service.createTvSeries("BGTHW12",
 				"Forest, Big Forest");
 		EpisodeDTO episode3_1_1 = service.createEpisode(tvSeries3, 1, 1);
@@ -281,6 +378,8 @@ public class TvWorldServiceTest {
 		episodesByUs.remove(episode3_1_2);
 		episodesByService = service.getEpisodesFromTvSeries(tvSeries3);
 		Assert.assertTrue(episodesByService.equals(episodesByUs));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Adding and removing episodes from TV series works.");
 		service.deleteTvSeries(tvSeries3);
 		List<TvSeriesDTO> nonExistingTvSeries = service
 				.findTvSeries(DetachedCriteria.forClass(TvSeries.class).add(
@@ -288,7 +387,7 @@ public class TvWorldServiceTest {
 		Assert.assertTrue(nonExistingTvSeries == null
 				|| nonExistingTvSeries.size() == 0);
 		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Adding and removing episodes from TV series works.");
+				"Deleting TV series works (and cascades to the episodes).");
 	}
 
 	@Test
@@ -332,7 +431,7 @@ public class TvWorldServiceTest {
 
 	@Test
 	public void presentCurrentNews() {
-		NewsDTO fastNews = service.createNews("FastNEWS", 9);
+		NewsDTO fastNews = service.createNews("FastNEWS");
 		ReportageDTO reportage3 = service.createReportage("Quite wise one",
 				"What is it?");
 		service.addReportageToNews(fastNews, reportage3);
@@ -377,11 +476,26 @@ public class TvWorldServiceTest {
 
 	@Test
 	public void mostPopularNews() {
-		NewsDTO news1 = service.createNews("Newsy1", 9999999);
-		NewsDTO news2 = service.createNews("Newsy2", 9999999);
-		@SuppressWarnings("unused")
-		NewsDTO news3 = service.createNews("Newsy3", 999999);
-		NewsDTO news4 = service.createNews("Newsy4", 9999999);
+		NewsDTO news1 = service.createNews("Newsy1");
+		news1.getAudience().add(99999999l);
+		news1.getAudience().add(0l);
+		news1.getAudience().add(0l);
+		service.updateNews(news1);
+		NewsDTO news2 = service.createNews("Newsy2");
+		news2.getAudience().add(99999999l);
+		news2.getAudience().add(0l);
+		news2.getAudience().add(0l);
+		service.updateNews(news2);
+		NewsDTO news3 = service.createNews("Newsy3");
+		news3.getAudience().add(66666666l);
+		news3.getAudience().add(66666666l);
+		news3.getAudience().add(66666666l);
+		service.updateNews(news3);
+		NewsDTO news4 = service.createNews("Newsy4");
+		news4.getAudience().add(99999999l);
+		news4.getAudience().add(0l);
+		news4.getAudience().add(0l);
+		service.updateNews(news4);
 		List<NewsDTO> newsByService = service.getMostPopularNews();
 		Assert.assertTrue(newsByService.size() == 3);
 		Assert.assertTrue(newsByService.contains(news1));
@@ -389,6 +503,23 @@ public class TvWorldServiceTest {
 		Assert.assertTrue(newsByService.contains(news4));
 		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
 				"The most popular news found.");
+	}
+
+	@Test
+	public void mostPopularInAverageNews() {
+		NewsDTO news5 = service.createNews("Newsy5");
+		news5.getAudience().add(77777777l);
+		news5.getAudience().add(88888888l);
+		service.updateNews(news5);
+		NewsDTO news6 = service.createNews("Newsy6");
+		news6.getAudience().add(11111111l);
+		news6.getAudience().add(88888888l);
+		service.updateNews(news6);
+		List<NewsDTO> newsByService = service.getMostPopularInAverageNews();
+		Assert.assertTrue(newsByService.size() == 1);
+		Assert.assertTrue(newsByService.contains(news5));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"The most popular in average news found.");
 	}
 
 	@SuppressWarnings("unused")

@@ -1,5 +1,7 @@
 package pl.edu.mimuw.ag291541.tvworld.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -9,23 +11,22 @@ public class News extends TvProduction {
 	/**
 	 * A number of people who watched the news.
 	 */
-	private long audience;
+	private List<Long> audience = new ArrayList<Long>();
 	private Set<Reportage> reportages = new TreeSet<Reportage>();
 
 	public News() {
 
 	}
 
-	public News(String productionName, long audience) {
+	public News(String productionName) {
 		super(productionName);
-		this.audience = audience;
 	}
 
-	public long getAudience() {
+	public List<Long> getAudience() {
 		return audience;
 	}
 
-	public void setAudience(long audience) {
+	public void setAudience(List<Long> audience) {
 		this.audience = audience;
 	}
 
@@ -39,7 +40,7 @@ public class News extends TvProduction {
 
 	public void update(NewsDTO dto) {
 		super.update(dto);
-		if (!(getAudience() != dto.getAudience()))
-			setAudience(dto.getAudience());
+		if (!getAudience().equals(dto.getAudience()))
+			setAudience(new ArrayList<Long>(dto.getAudience()));
 	}
 }

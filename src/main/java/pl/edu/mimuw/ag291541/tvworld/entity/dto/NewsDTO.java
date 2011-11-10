@@ -1,20 +1,22 @@
 package pl.edu.mimuw.ag291541.tvworld.entity.dto;
 
+import java.util.List;
+
 import pl.edu.mimuw.ag291541.tvworld.entity.News;
 
 public class NewsDTO extends TvProductionDTO {
-	private long audience;
+	private List<Long> audience;
 
 	public NewsDTO(News news) {
 		super(news);
 		this.audience = news.getAudience();
 	}
 
-	public long getAudience() {
+	public List<Long> getAudience() {
 		return audience;
 	}
 
-	public void setAudience(long audience) {
+	public void setAudience(List<Long> audience) {
 		this.audience = audience;
 	}
 }
