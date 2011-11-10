@@ -7,7 +7,6 @@ import org.hibernate.criterion.DetachedCriteria;
 import pl.edu.mimuw.ag291541.tvworld.dao.NewsDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.util.HibernateUtil;
 import pl.edu.mimuw.ag291541.tvworld.entity.News;
-import pl.edu.mimuw.ag291541.tvworld.entity.dto.NewsDTO;
 
 public class HibernateNewsDAO implements NewsDAO {
 
