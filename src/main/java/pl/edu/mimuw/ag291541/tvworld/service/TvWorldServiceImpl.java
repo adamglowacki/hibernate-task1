@@ -355,7 +355,8 @@ public class TvWorldServiceImpl implements TvWorldService {
 		callInTransaction(new CallableInTransaction() {
 			@Override
 			public void call() {
-				getReporter(reporter).getReportages().remove(getReportage(reportage));
+				getReporter(reporter).getReportages().remove(
+						getReportage(reportage));
 			}
 		});
 	}
@@ -408,12 +409,18 @@ public class TvWorldServiceImpl implements TvWorldService {
 	}
 
 	@Override
-	public List<ActorDTO> findActor(DetachedCriteria criteria) {
-		List<Actor> entityActors = actorDao.find(criteria);
-		List<ActorDTO> actors = new ArrayList<ActorDTO>(entityActors.size());
-		for (Actor a : entityActors)
-			actors.add(new ActorDTO(a));
-		return actors;
+	public List<ActorDTO> findActor(final DetachedCriteria criteria) {
+		return callInTransaction(new CallableWithResultInTransaction<List<ActorDTO>>() {
+			@Override
+			public List<ActorDTO> call() {
+				List<Actor> entityActors = actorDao.find(criteria);
+				List<ActorDTO> actors = new ArrayList<ActorDTO>(
+						entityActors.size());
+				for (Actor a : entityActors)
+					actors.add(new ActorDTO(a));
+				return actors;
+			}
+		});
 	}
 
 	@Override
@@ -627,7 +634,7 @@ public class TvWorldServiceImpl implements TvWorldService {
 	}
 
 	@Override
-	public void addEpisodeToTvSeries(final TvSeriesDTO tvSeries,
+	public void moveEpisodeToTvSeries(final TvSeriesDTO tvSeries,
 			final EpisodeDTO episode) {
 		callInTransaction(new CallableInTransaction() {
 			@Override
@@ -718,7 +725,7 @@ public class TvWorldServiceImpl implements TvWorldService {
 						entityTvSeries.size());
 				for (TvSeries ts : entityTvSeries)
 					tvSeries.add(new TvSeriesDTO(ts));
-				return null;
+				return tvSeries;
 			}
 		});
 	}

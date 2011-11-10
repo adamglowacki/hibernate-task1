@@ -150,7 +150,7 @@ public interface TvWorldService {
 
 	public Set<EpisodeDTO> getEpisodesFromTvSeries(TvSeriesDTO tvSeries);
 
-	public void addEpisodeToTvSeries(TvSeriesDTO tvSeries, EpisodeDTO episode);
+	public void moveEpisodeToTvSeries(TvSeriesDTO tvSeries, EpisodeDTO episode);
 
 	public void removeEpisodeFromTvSeries(TvSeriesDTO tvSeries,
 			EpisodeDTO episode);

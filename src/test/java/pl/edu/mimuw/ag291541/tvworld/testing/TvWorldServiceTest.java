@@ -1,5 +1,7 @@
 package pl.edu.mimuw.ag291541.tvworld.testing;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,7 +14,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
+import pl.edu.mimuw.ag291541.tvworld.entity.Actor;
+import pl.edu.mimuw.ag291541.tvworld.entity.Episode;
+import pl.edu.mimuw.ag291541.tvworld.entity.News;
 import pl.edu.mimuw.ag291541.tvworld.entity.Person;
+import pl.edu.mimuw.ag291541.tvworld.entity.Reportage;
 import pl.edu.mimuw.ag291541.tvworld.entity.Reporter;
 import pl.edu.mimuw.ag291541.tvworld.entity.TvProduction;
 import pl.edu.mimuw.ag291541.tvworld.entity.TvSeries;
@@ -245,6 +251,181 @@ public class TvWorldServiceTest {
 	}
 
 	@Test
+	public void deleteActor() {
+		PersonDTO jan = service.createPerson("Jan", "Długi", "81712768761234");
+		TvStationDTO tdr = service.createTvStation("Telewizja dla Rzeczników");
+		ActorDTO janActor = service.createActor(jan, ActorRating.HOPELESS, tdr);
+		DetachedCriteria getJanReporter = DetachedCriteria
+				.forClass(Actor.class)
+				.add(Property.forName("identity.id").eq(
+						janActor.getIdentity().getId()))
+				.add(Property.forName("employer.id").eq(
+						janActor.getEmployer().getId()));
+		List<ActorDTO> actors = service.findActor(getJanReporter);
+		Assert.assertTrue(actors.size() == 1);
+		Assert.assertTrue(actors.get(0).equals(janActor));
+		service.deleteActor(janActor);
+		actors = service.findActor(getJanReporter);
+		Assert.assertTrue(actors == null || actors.size() == 0);
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Deleting actors is ok.");
+	}
+
+	@Test
+	public void updateActor() {
+		PersonDTO henryk = service.createPerson("Henryk", "Długi",
+				"81712768761245");
+		TvStationDTO tdr = service.createTvStation("Telewizja dla Ręczników");
+		ActorRating henrykRatingFirst = ActorRating.SATISFYING;
+		ActorRating henrykRatingSecond = ActorRating.EXCELLENT;
+		ActorDTO henrykActor = service.createActor(henryk, henrykRatingFirst,
+				tdr);
+		henrykActor.setRating(henrykRatingSecond);
+		service.updateActor(henrykActor);
+		DetachedCriteria getHenrykActor = DetachedCriteria
+				.forClass(Actor.class)
+				.add(Property.forName("identity.id").eq(
+						henrykActor.getIdentity().getId()))
+				.add(Property.forName("employer.id").eq(
+						henrykActor.getEmployer().getId()));
+		List<ActorDTO> actors = service.findActor(getHenrykActor);
+		Assert.assertTrue(actors.size() == 1);
+		Assert.assertTrue(actors.get(0).equals(henrykActor));
+		Assert.assertTrue(actors.get(0).getRating()
+				.equals(henrykActor.getRating()));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Updating actors is ok.");
+	}
+
+	@Test
+	public void deleteNews() {
+		NewsDTO news = service.createNews("Newsy do usunięcia");
+		DetachedCriteria getNews = DetachedCriteria.forClass(News.class).add(
+				Property.forName("id").eq(news.getId()));
+		List<NewsDTO> newses = service.findNews(getNews);
+		Assert.assertTrue(newses.size() == 1);
+		Assert.assertTrue(newses.get(0).equals(news));
+		service.deleteNews(news);
+		newses = service.findNews(getNews);
+		Assert.assertTrue(newses == null || newses.size() == 0);
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Deleting news is ok.");
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void updateNews() {
+		NewsDTO news = service.createNews("Newsy do modyfikacji");
+		DetachedCriteria getNews = DetachedCriteria.forClass(News.class).add(
+				Property.forName("id").eq(news.getId()));
+		news.getAiringDate().add(new Date(2010, 12, 10));
+		news.setAudience(new ArrayList<Long>());
+		news.getAudience().add(45l);
+		service.updateNews(news);
+		List<NewsDTO> newses = service.findNews(getNews);
+		Assert.assertTrue(newses.size() == 1);
+		NewsDTO newsByService = newses.get(0);
+		Assert.assertTrue(newsByService.equals(news));
+		Assert.assertTrue(newsByService.getAiringDate().equals(
+				news.getAiringDate()));
+		Assert.assertTrue(newsByService.getAudience()
+				.equals(news.getAudience()));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Updating news is ok.");
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void updateTvSeries() {
+		TvSeriesDTO ts = service.createTvSeries("Produkcja dębowa",
+				"Serial DĄB");
+		ts.setTitle("Serial AKACJA");
+		ts.getAiringDate().add(new Date(2012, 1, 1, 1, 1, 1));
+		ts.getAiringDate().add(new Date(2011, 1, 1, 1, 1, 1));
+		service.updateTvSeries(ts);
+		DetachedCriteria getTvSeries = DetachedCriteria
+				.forClass(TvSeries.class).add(
+						Property.forName("id").eq(ts.getId()));
+		List<TvSeriesDTO> tvSerieses = service.findTvSeries(getTvSeries);
+		Assert.assertTrue(tvSerieses.size() == 1);
+		TvSeriesDTO tsByService = tvSerieses.get(0);
+		Assert.assertTrue(ts.equals(tsByService));
+		Assert.assertTrue(ts.getTitle().equals(tsByService.getTitle()));
+		Assert.assertTrue(ts.getAiringDate()
+				.equals(tsByService.getAiringDate()));
+	}
+
+	/**
+	 * Here we try to delete a reportage that is contained by one of the news.
+	 * We decided it should not pass.
+	 */
+	@Test(expected = RuntimeException.class)
+	public void deleteReportageAssociatedWithNews() {
+		NewsDTO news = service
+				.createNews("Newsy do usunięcia reportażu z nich");
+		ReportageDTO reportage = service.createReportage("R1",
+				"Abcsdefghijklmnop");
+		service.addReportageToNews(news, reportage);
+		Set<ReportageDTO> newsReportages = service.getReportagesFromNews(news);
+		Assert.assertTrue(newsReportages.size() == 1);
+		Assert.assertTrue(newsReportages.contains(reportage));
+		service.deleteReportage(reportage);
+		newsReportages = service.getReportagesFromNews(news);
+		Assert.assertTrue(newsReportages == null || newsReportages.size() == 0);
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Deleting reportages is ok.");
+	}
+
+	@Test
+	public void deleteEpisode() {
+		TvSeriesDTO tvSeries = service.createTvSeries("Produkcja ASDAGSDFA",
+				"12098324");
+		EpisodeDTO e = service.createEpisode(tvSeries, 1, 34);
+		service.deleteEpisode(e);
+		DetachedCriteria getEpisode = DetachedCriteria.forClass(Episode.class)
+				.add(Property.forName("id").eq(e.getId()));
+		List<EpisodeDTO> episodes = service.findEpisode(getEpisode);
+		Assert.assertTrue(episodes == null || episodes.size() == 0);
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Deleting episodes is ok.");
+	}
+
+	@Test
+	public void updateEpisode() {
+		TvSeriesDTO tvSeries = service.createTvSeries("Produkcja DRRETEWER",
+				"2344432");
+		EpisodeDTO e = service.createEpisode(tvSeries, 11, 314);
+		e.setNumber(e.getNumber() + 1);
+		e.setSeason(e.getSeason() + 11);
+		service.updateEpisode(e);
+		DetachedCriteria getEpisode = DetachedCriteria.forClass(Episode.class)
+				.add(Property.forName("id").eq(e.getId()));
+		List<EpisodeDTO> episodes = service.findEpisode(getEpisode);
+		Assert.assertTrue(episodes.size() == 1);
+		EpisodeDTO eByService = episodes.get(0);
+		Assert.assertTrue(e.getNumber() == eByService.getNumber());
+		Assert.assertTrue(e.getSeason() == eByService.getSeason());
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Updating episodes is ok.");
+	}
+
+	@Test
+	public void findEpisode() {
+		TvSeriesDTO tvSeries = service.createTvSeries("Produkcja ADSASDADS",
+				"0909000");
+		EpisodeDTO e = service.createEpisode(tvSeries, 111, 3114);
+		DetachedCriteria getEpisode = DetachedCriteria.forClass(Episode.class)
+				.add(Property.forName("id").eq(e.getId()));
+		List<EpisodeDTO> episodes = service.findEpisode(getEpisode);
+		Assert.assertTrue(episodes.size() == 1);
+		EpisodeDTO eByService = episodes.get(0);
+		Assert.assertTrue(e.getNumber() == eByService.getNumber());
+		Assert.assertTrue(e.getSeason() == eByService.getSeason());
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Finding episodes is ok.");
+	}
+
+	@Test
 	public void retrieveWorkersFromTvStationSide() {
 		TvStationDTO tdz = service.createTvStation("Telewizja Dla Zielonych");
 		final String wincentyName = "Wincenty", wincentySurname = "Kapusta", wincentyPesel = "181920212322";
@@ -337,10 +518,20 @@ public class TvWorldServiceTest {
 				.getReportagesFromReporter(winnieReporter);
 		Assert.assertTrue(winnieReportagesByUs
 				.equals(winnieReportagesByService));
-		service.addReportageToNews(news, reportage1);
-		service.addReportageToNews(news, reportage2);
 		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
 				"Modifying reportages of reporter collection succeeded.");
+		service.addReportageToNews(news, reportage1);
+		service.addReportageToNews(news, reportage2);
+		Set<ReportageDTO> newsReportagesByService = service
+				.getReportagesFromNews(news);
+		Set<ReportageDTO> newsReportagesByUs = new TreeSet<ReportageDTO>();
+		newsReportagesByUs.add(reportage1);
+		newsReportagesByUs.add(reportage2);
+		Assert.assertTrue(newsReportagesByUs.equals(newsReportagesByService));
+		service.removeReportageFromNews(news, reportage1);
+		newsReportagesByService = service.getReportagesFromNews(news);
+		newsReportagesByUs.remove(reportage1);
+		Assert.assertTrue(newsReportagesByUs.equals(newsReportagesByService));
 		/*
 		 * <code>winnie</code> does work also as another worker while
 		 * <code>kanga</code> only produces reportages that are used in
@@ -387,7 +578,34 @@ public class TvWorldServiceTest {
 		Assert.assertTrue(nonExistingTvSeries == null
 				|| nonExistingTvSeries.size() == 0);
 		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Deleting TV series works (and cascades to the episodes).");
+				"Deleting TV series works.");
+	}
+
+	@Test
+	public void moveEpisodeToTvSeries() {
+		TvSeriesDTO tvSeries = service.createTvSeries("Kolejny serial",
+				"Serial 4562");
+		EpisodeDTO episode = service.createEpisode(tvSeries, 1, 3);
+		TvSeriesDTO otherTvSeries = service.createTvSeries("Nowy serial",
+				"Miś uszatek");
+		service.moveEpisodeToTvSeries(otherTvSeries, episode);
+		LoggerFactory
+				.getLogger(TvWorldServiceTest.class)
+				.info("Episode has been moved from one TV series to another successfully.");
+	}
+
+	@Test
+	public void findReportage() {
+		ReportageDTO reportage1 = service.createReportage(
+				"Reportaż do znalezienia", "Tu nic ciekawego nie ma.");
+		DetachedCriteria getReportage1 = DetachedCriteria.forClass(
+				Reportage.class).add(
+				Property.forName("id").eq(reportage1.getId()));
+		List<ReportageDTO> reportages = service.findReportage(getReportage1);
+		Assert.assertTrue(reportages.size() == 1);
+		Assert.assertTrue(reportages.contains(reportage1));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Finding reportages seems to be ok.");
 	}
 
 	@Test

@@ -3,6 +3,8 @@ package pl.edu.mimuw.ag291541.tvworld.entity;
 import java.util.Set;
 import java.util.TreeSet;
 
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.TvSeriesDTO;
+
 public class TvSeries extends TvProduction {
 	private String title;
 	private Set<Episode> episodes = new TreeSet<Episode>();
@@ -30,5 +32,11 @@ public class TvSeries extends TvProduction {
 
 	public void setEpisodes(Set<Episode> episodes) {
 		this.episodes = episodes;
+	}
+
+	public void update(TvSeriesDTO dto) {
+		super.update(dto);
+		if (!getTitle().equals(dto.getTitle()))
+			setTitle(dto.getTitle());
 	}
 }
