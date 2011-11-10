@@ -275,6 +275,21 @@ public class TvWorldServiceImpl implements TvWorldService {
 	}
 
 	@Override
+	public List<TvWorkerDTO> findTvWorker(final DetachedCriteria criteria) {
+		return callInTransaction(new CallableWithResultInTransaction<List<TvWorkerDTO>>() {
+			@Override
+			public List<TvWorkerDTO> call() {
+				List<TvWorker> entityWorkers = tvWorkerDao.find(criteria);
+				List<TvWorkerDTO> workers = new ArrayList<TvWorkerDTO>(
+						entityWorkers.size());
+				for (TvWorker tw : entityWorkers)
+					workers.add(new TvWorkerDTO(tw));
+				return workers;
+			}
+		});
+	}
+
+	@Override
 	public ReporterDTO createReporter(final PersonDTO identity,
 			final ReporterSpeciality speciality, final TvStationDTO employer) {
 		return callInTransaction(new CallableWithResultInTransaction<ReporterDTO>() {
@@ -661,7 +676,7 @@ public class TvWorldServiceImpl implements TvWorldService {
 			public List<NewsDTO> call() {
 				List<News> entityNews = newsDao.getMostPopular();
 				List<NewsDTO> news = new ArrayList<NewsDTO>(entityNews.size());
-				for(News n : entityNews)
+				for (News n : entityNews)
 					news.add(new NewsDTO(n));
 				return news;
 			}
@@ -774,6 +789,13 @@ public class TvWorldServiceImpl implements TvWorldService {
 	private Episode getEpisode(EpisodeDTO dto) {
 		return episodeDao.get(dto.getId());
 	}
+
+	// private <R, T> List<R> transformToDTO(List<T> entities) {
+	// List<R> dtos = new ArrayList<R>(entities.size());
+	// for (T entity : entities)
+	// dtos.add(new R(entity));
+	// return dtos;
+	// }
 
 	private <R> R callInTransaction(CallableWithResultInTransaction<R> callable) {
 		R result;

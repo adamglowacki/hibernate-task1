@@ -76,6 +76,8 @@ public interface TvWorldService {
 
 	public void deleteTvWorker(TvWorkerDTO tvWorker);
 
+	public List<TvWorkerDTO> findTvWorker(DetachedCriteria criteria);
+
 	public ReporterDTO createReporter(PersonDTO identity,
 			ReporterSpeciality speciality, TvStationDTO employer);
 

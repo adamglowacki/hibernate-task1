@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import pl.edu.mimuw.ag291541.tvworld.entity.Person;
 import pl.edu.mimuw.ag291541.tvworld.entity.Reporter;
 import pl.edu.mimuw.ag291541.tvworld.entity.TvSeries;
+import pl.edu.mimuw.ag291541.tvworld.entity.TvStation;
+import pl.edu.mimuw.ag291541.tvworld.entity.TvWorker;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.ActorDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.EpisodeDTO;
 import pl.edu.mimuw.ag291541.tvworld.entity.dto.NewsDTO;
@@ -38,7 +40,7 @@ public class TvWorldServiceTest {
 	}
 
 	@Test
-	public void personTest() {
+	public void createAndRetrievePerson() {
 		final String johnnyName = "Johnny", johnnySurname = "Red", johnnyPesel = "AFGHIJK";
 		final String jamesName = "James", jamesSurname = "Tableboard", jamesPesel = "19121200007";
 		final int peopleNumber = 2;
@@ -89,6 +91,40 @@ public class TvWorldServiceTest {
 	}
 
 	@Test
+	public void deletePerson() {
+		PersonDTO julia = service.createPerson("Julia", "Mandelbrot",
+				"11111222223333");
+		DetachedCriteria getJulias = DetachedCriteria.forClass(Person.class)
+				.add(Property.forName("id").eq(julia.getId()));
+		List<PersonDTO> julias = service.findPerson(getJulias);
+		Assert.assertTrue(julias.size() == 1);
+		Assert.assertTrue(julias.get(0).equals(julia));
+		service.deletePerson(julia);
+		julias = service.findPerson(getJulias);
+		Assert.assertTrue(julias.size() == 0);
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Deleting persons works.");
+	}
+
+	@Test
+	public void deleteTvWorker() {
+		PersonDTO zenek = service.createPerson("Zenek", "Mandelbrot", "445566");
+		TvStationDTO tdz = service.createTvStation("Telewizja dla Zenka");
+		TvWorkerDTO zenekWorker = service.createTvWorker(zenek, tdz);
+		DetachedCriteria getZenki = DetachedCriteria.forClass(TvWorker.class)
+				.add(Property.forName("identity.id").eq(zenek.getId()))
+				.add(Property.forName("employer.id").eq(tdz.getId()));
+		List<TvWorkerDTO> zenki = service.findTvWorker(getZenki);
+		Assert.assertTrue(zenki.size() == 1);
+		Assert.assertTrue(zenki.get(0).equals(zenekWorker));
+		service.deleteTvWorker(zenekWorker);
+		zenki = service.findTvWorker(getZenki);
+		Assert.assertTrue(zenki.size() == 0);
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Deleting TV workers works.");
+	}
+
+	@Test
 	public void findPersonsByCriteria() {
 		final String emilName = "Emil", emilSurname = "Red", emilPesel = "AFGHIJK123";
 		final String ulaName = "ula", ulaSurname = "Katalinsky", ulaPesel = "TYTYTYTUS123";
@@ -116,6 +152,19 @@ public class TvWorldServiceTest {
 				"Finding persons by criteria works.");
 	}
 
+	@Test
+	public void createAndRetrieveTvStation() {
+		TvStationDTO tdc = service.createTvStation("Telewizja dla Czerwonych");
+		List<TvStationDTO> stations = service.findTvStation(DetachedCriteria
+				.forClass(TvStation.class).add(
+						Property.forName("id").eq(tdc.getId())));
+		Assert.assertTrue(stations.size() == 1);
+		Assert.assertTrue(stations.get(0).equals(tdc));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Creating TV station works.");
+	}
+
+	@Test
 	public void retrieveWorkersFromTvStationSide() {
 		TvStationDTO tdz = service.createTvStation("Telewizja Dla Zielonych");
 		final String wincentyName = "Wincenty", wincentySurname = "Kapusta", wincentyPesel = "181920212322";
@@ -147,6 +196,7 @@ public class TvWorldServiceTest {
 				.info("Saving and retrieving workers from the TV station side works.");
 	}
 
+	@Test
 	public void fireWorkerFromStation() {
 		TvStationDTO tdf = service.createTvStation("Telewizja Dla Fioletowych");
 		final String jackName = "Jack", jackSurname = "Ulrich", jackPesel = "112AX798Y";
@@ -298,24 +348,23 @@ public class TvWorldServiceTest {
 				"Presenting current news reportages works.");
 	}
 
-	@SuppressWarnings("unused")
 	@Test
 	public void testLongestByEpisode() {
 		TvSeriesDTO abc = service.createTvSeries("Abc1", "Abc");
 		TvSeriesDTO def = service.createTvSeries("Def1", "Def");
 		TvSeriesDTO ghi = service.createTvSeries("Ghi1", "Ghi");
-		EpisodeDTO abcEpisode1 = service.createEpisode(abc, 0, 0);
-		EpisodeDTO abcEpisode2 = service.createEpisode(abc, 0, 1);
-		EpisodeDTO abcEpisode3 = service.createEpisode(abc, 0, 2);
-		EpisodeDTO abcEpisode4 = service.createEpisode(abc, 0, 3);
-		EpisodeDTO abcEpisode5 = service.createEpisode(abc, 0, 4);
-		EpisodeDTO defEpisode1 = service.createEpisode(def, 1, 0);
-		EpisodeDTO defEpisode2 = service.createEpisode(def, 1, 9);
-		EpisodeDTO defEpisode3 = service.createEpisode(def, 1, 2);
-		EpisodeDTO defEpisode4 = service.createEpisode(def, 1, 3);
-		EpisodeDTO defEpisode5 = service.createEpisode(def, 1, 4);
-		EpisodeDTO ghiEpisode1 = service.createEpisode(ghi, 4, 19);
-		EpisodeDTO ghiEpisode2 = service.createEpisode(ghi, 14, 9);
+		service.createEpisode(abc, 0, 0);
+		service.createEpisode(abc, 0, 1);
+		service.createEpisode(abc, 0, 2);
+		service.createEpisode(abc, 0, 3);
+		service.createEpisode(abc, 0, 4);
+		service.createEpisode(def, 1, 0);
+		service.createEpisode(def, 1, 9);
+		service.createEpisode(def, 1, 2);
+		service.createEpisode(def, 1, 3);
+		service.createEpisode(def, 1, 4);
+		service.createEpisode(ghi, 4, 19);
+		service.createEpisode(ghi, 14, 9);
 		List<TvSeriesDTO> longestByEpisodesByService = service
 				.getLongestByEpisodesTvSeries();
 		Assert.assertTrue(longestByEpisodesByService.size() == 2);
@@ -367,7 +416,7 @@ public class TvWorldServiceTest {
 				.info("The longest tv series in respect to the number of seasons found.");
 	}
 
-	public Set<ReporterDTO> getReportageAuthors(ReportageDTO reportage) {
+	private Set<ReporterDTO> getReportageAuthors(ReportageDTO reportage) {
 		/*
 		 * Because HQL queries are not presented to the service user, we need to
 		 * filter the reporters in an application (in this test we want to
