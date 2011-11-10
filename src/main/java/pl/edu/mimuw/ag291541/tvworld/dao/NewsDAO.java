@@ -13,5 +13,7 @@ public interface NewsDAO {
 
 	public News get(Long id);
 
+	public List<News> getMostPopular();
+
 	public List<News> find(DetachedCriteria criteria);
 }

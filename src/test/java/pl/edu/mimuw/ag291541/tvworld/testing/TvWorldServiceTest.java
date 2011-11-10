@@ -258,6 +258,15 @@ public class TvWorldServiceTest {
 				.getLongestBySeasonsTvSeries();
 		Assert.assertTrue(longestBySeasonsByService.size() == 1);
 		Assert.assertTrue(longestBySeasonsByService.contains(ghi));
+		NewsDTO news1 = service.createNews("Newsy1", 9999999);
+		NewsDTO news2 = service.createNews("Newsy2", 9999999);
+		NewsDTO news3 = service.createNews("Newsy3", 999999);
+		NewsDTO news4 = service.createNews("Newsy4", 9999999);
+		List<NewsDTO> newsByService = service.getMostPopularNews();
+		Assert.assertTrue(newsByService.size() == 3);
+		Assert.assertTrue(newsByService.contains(news1));
+		Assert.assertTrue(newsByService.contains(news2));
+		Assert.assertTrue(newsByService.contains(news4));
 	}
 
 	public Set<ReporterDTO> getReportageAuthors(ReportageDTO reportage) {

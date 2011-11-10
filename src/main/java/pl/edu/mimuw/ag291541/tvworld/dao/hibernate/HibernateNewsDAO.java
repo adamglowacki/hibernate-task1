@@ -7,6 +7,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import pl.edu.mimuw.ag291541.tvworld.dao.NewsDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.util.HibernateUtil;
 import pl.edu.mimuw.ag291541.tvworld.entity.News;
+import pl.edu.mimuw.ag291541.tvworld.entity.dto.NewsDTO;
 
 public class HibernateNewsDAO implements NewsDAO {
 
@@ -26,6 +27,17 @@ public class HibernateNewsDAO implements NewsDAO {
 	public News get(Long id) {
 		return (News) HibernateUtil.getSessionFactory().getCurrentSession()
 				.get(News.class, id);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<News> getMostPopular() {
+		return HibernateUtil
+				.getSessionFactory()
+				.getCurrentSession()
+				.createQuery(
+						"from News n where n.audience = (select max(b.audience) from News b)")
+				.list();
 	}
 
 	@SuppressWarnings("unchecked")

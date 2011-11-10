@@ -655,9 +655,17 @@ public class TvWorldServiceImpl implements TvWorldService {
 	}
 
 	@Override
-	public NewsDTO getMostPopularNews() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<NewsDTO> getMostPopularNews() {
+		return callInTransaction(new CallableWithResultInTransaction<List<NewsDTO>>() {
+			@Override
+			public List<NewsDTO> call() {
+				List<News> entityNews = newsDao.getMostPopular();
+				List<NewsDTO> news = new ArrayList<NewsDTO>(entityNews.size());
+				for(News n : entityNews)
+					news.add(new NewsDTO(n));
+				return news;
+			}
+		});
 	}
 
 	@Override

@@ -4,9 +4,7 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 
 import pl.edu.mimuw.ag291541.tvworld.dao.TvSeriesDAO;
 import pl.edu.mimuw.ag291541.tvworld.dao.util.HibernateUtil;
@@ -58,17 +56,17 @@ public class HibernateTvSeriesDAO implements TvSeriesDAO {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<TvSeries> findLongestBySeasons() {
-		Criteria crit = HibernateUtil.getSessionFactory().getCurrentSession()
-				.createCriteria(TvSeries.class)
-				.setProjection(Projections.property("episodes"));
-		crit.setProjection(Projections.projectionList().add(
-				Projections.countDistinct("season")));
-		long max = (Long) crit.uniqueResult();
+		long max = (Long) HibernateUtil
+				.getSessionFactory()
+				.getCurrentSession()
+				.createQuery(
+						"select count(distinct e.season) from TvSeries ts join ts.episodes e group by ts order by 1 desc")
+				.setMaxResults(1).uniqueResult();
 		return HibernateUtil
 				.getSessionFactory()
 				.getCurrentSession()
 				.createQuery(
-						"from TvSeries a where size(a.episodes) = :maxsize")
+						"from TvSeries a where (select count(distinct b.season) from a.episodes b) = :maxsize")
 				.setLong("maxsize", max).list();
 	}
 

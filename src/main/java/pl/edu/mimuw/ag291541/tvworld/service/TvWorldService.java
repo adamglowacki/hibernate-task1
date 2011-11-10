@@ -115,7 +115,7 @@ public interface TvWorldService {
 	 */
 	public Map<NewsDTO, Set<ReportageDTO>> presentAllNews();
 
-	public NewsDTO getMostPopularNews();
+	public List<NewsDTO> getMostPopularNews();
 
 	public List<NewsDTO> findNews(DetachedCriteria criteria);
 
