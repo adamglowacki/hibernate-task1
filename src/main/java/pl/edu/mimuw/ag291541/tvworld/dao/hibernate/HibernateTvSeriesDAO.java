@@ -56,12 +56,9 @@ public class HibernateTvSeriesDAO implements TvSeriesDAO {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<TvSeries> findLongestBySeasons() {
-		long max = (Long) HibernateUtil
-				.getSessionFactory()
-				.getCurrentSession()
-				.createQuery(
-						"select count(distinct e.season) from TvSeries ts join ts.episodes e group by ts order by 1 desc")
-				.setMaxResults(1).uniqueResult();
+		String maxCount = "select count(distinct e.season) from TvSeries ts join ts.episodes e group by ts order by 1 desc";
+		long max = (Long) HibernateUtil.getSessionFactory().getCurrentSession()
+				.createQuery(maxCount).setMaxResults(1).uniqueResult();
 		return HibernateUtil
 				.getSessionFactory()
 				.getCurrentSession()
