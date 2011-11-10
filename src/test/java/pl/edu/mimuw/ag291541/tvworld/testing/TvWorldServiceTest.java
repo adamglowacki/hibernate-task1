@@ -10,6 +10,7 @@ import org.hibernate.criterion.Property;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 import pl.edu.mimuw.ag291541.tvworld.entity.Person;
 import pl.edu.mimuw.ag291541.tvworld.entity.Reporter;
@@ -39,28 +40,32 @@ public class TvWorldServiceTest {
 	@Test
 	public void personTest() {
 		final String johnnyName = "Johnny", johnnySurname = "Red", johnnyPesel = "AFGHIJK";
-		final String anneName = "Anne", anneSurname = "Katalinsky", annePesel = "TYTYTYTUS";
 		final String jamesName = "James", jamesSurname = "Tableboard", jamesPesel = "19121200007";
-		final int peopleNumber = 3;
+		final int peopleNumber = 2;
 		final PersonDTO johnny = service.createPerson(johnnyName,
 				johnnySurname, johnnyPesel);
-		final PersonDTO anne = service.createPerson(anneName, anneSurname,
-				annePesel);
 		final PersonDTO james = service.createPerson(jamesName, jamesSurname,
 				jamesPesel);
-		final Long johnnyId = johnny.getId(), anneId = anne.getId(), jamesId = james
-				.getId();
+		final Long johnnyId = johnny.getId(), jamesId = james.getId();
 		final Set<Long> people = new TreeSet<Long>();
 		people.add(johnnyId);
 		people.add(jamesId);
-		people.add(anneId);
 		final DetachedCriteria criteria = DetachedCriteria.forClass(
 				Person.class).add(Property.forName("id").in(people));
 		List<PersonDTO> persons = service.findPerson(criteria);
 		Assert.assertTrue(persons.size() == peopleNumber);
-		for (PersonDTO p : persons) {
+		for (PersonDTO p : persons)
 			Assert.assertTrue(people.contains(p.getId()));
-		}
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Finding persons by criteria works.");
+	}
+
+	@Test
+	public void updatePerson() {
+		final String anneName = "Anne", anneSurname = "Katalinsky", annePesel = "TYTYTYTUS";
+		final PersonDTO anne = service.createPerson(anneName, anneSurname,
+				annePesel);
+		Long anneId = anne.getId();
 		final List<PersonDTO> annes2 = service.findPerson(DetachedCriteria
 				.forClass(Person.class).add(Property.forName("id").eq(anneId)));
 		Assert.assertTrue(annes2.size() == 1
@@ -79,12 +84,40 @@ public class TvWorldServiceTest {
 		Assert.assertTrue(anne3.equals(anne));
 		/* though with a new surname */
 		Assert.assertTrue(anne3.getSurname().equals(anneNewSurname));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Updating persons works.");
 	}
 
 	@Test
-	public void testTvWorkers() {
+	public void findPersonsByCriteria() {
+		final String emilName = "Emil", emilSurname = "Red", emilPesel = "AFGHIJK123";
+		final String ulaName = "ula", ulaSurname = "Katalinsky", ulaPesel = "TYTYTYTUS123";
+		final String jurekName = "jurek", jurekSurname = "Tableboard", jurekPesel = "19121200007123";
+		final int peopleNumber = 3;
+		final PersonDTO emil = service.createPerson(emilName, emilSurname,
+				emilPesel);
+		final PersonDTO ula = service.createPerson(ulaName, ulaSurname,
+				ulaPesel);
+		final PersonDTO jurek = service.createPerson(jurekName, jurekSurname,
+				jurekPesel);
+		final Long emilId = emil.getId(), ulaId = ula.getId(), jurekId = jurek
+				.getId();
+		final Set<Long> people = new TreeSet<Long>();
+		people.add(emilId);
+		people.add(jurekId);
+		people.add(ulaId);
+		final DetachedCriteria criteria = DetachedCriteria.forClass(
+				Person.class).add(Property.forName("id").in(people));
+		List<PersonDTO> persons = service.findPerson(criteria);
+		Assert.assertTrue(persons.size() == peopleNumber);
+		for (PersonDTO p : persons)
+			Assert.assertTrue(people.contains(p.getId()));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Finding persons by criteria works.");
+	}
+
+	public void retrieveWorkersFromTvStationSide() {
 		TvStationDTO tdz = service.createTvStation("Telewizja Dla Zielonych");
-		TvStationDTO tdf = service.createTvStation("Telewizja Dla Fioletowych");
 		final String wincentyName = "Wincenty", wincentySurname = "Kapusta", wincentyPesel = "181920212322";
 		PersonDTO wincenty = service.createPerson(wincentyName,
 				wincentySurname, wincentyPesel);
@@ -94,14 +127,14 @@ public class TvWorldServiceTest {
 		final String joasiaName = "Joasia", joasiaSurname = "Brzęczyk", joasiaPesel = "007";
 		PersonDTO joasia = service.createPerson(joasiaName, joasiaSurname,
 				joasiaPesel);
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Persons created.");
 		TvWorkerDTO wincenty4Tdz = service.createTvWorker(wincenty, tdz);
 		TvWorkerDTO jacek4Tdz = service.createTvWorker(jacek, tdz);
 		ReporterDTO joasia4Tdz = service.createReporter(joasia,
 				ReporterSpeciality.WILDLIFE, tdz);
-		ReporterDTO jacek4Tdf = service.createReporter(jacek,
-				ReporterSpeciality.GARDENING_SHOW, tdf);
-		ActorDTO joasia4Tdf = service
-				.createActor(joasia, ActorRating.GOOD, tdf);
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Workers, actors and reporters created.");
 		Set<TvWorkerDTO> tdzWorkersByService = service
 				.getTvWorkersFromTvStation(tdz);
 		Set<TvWorkerDTO> tdzWorkersByUs = new TreeSet<TvWorkerDTO>();
@@ -109,17 +142,27 @@ public class TvWorldServiceTest {
 		tdzWorkersByUs.add(wincenty4Tdz);
 		tdzWorkersByUs.add(joasia4Tdz);
 		Assert.assertTrue(tdzWorkersByUs.equals(tdzWorkersByService));
+		LoggerFactory
+				.getLogger(TvWorldServiceTest.class)
+				.info("Saving and retrieving workers from the TV station side works.");
+	}
+
+	public void fireWorkerFromStation() {
+		TvStationDTO tdf = service.createTvStation("Telewizja Dla Fioletowych");
+		final String jackName = "Jack", jackSurname = "Ulrich", jackPesel = "112AX798Y";
+		PersonDTO jack = service.createPerson(jackName, jackSurname, jackPesel);
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Persons created.");
+		ReporterDTO jacek4Tdf = service.createReporter(jack,
+				ReporterSpeciality.GARDENING_SHOW, tdf);
+		service.deleteTvWorker(jacek4Tdf);
 		Set<TvWorkerDTO> tdfWorkersByService = service
 				.getTvWorkersFromTvStation(tdf);
 		Set<TvWorkerDTO> tdfWorkersByUs = new TreeSet<TvWorkerDTO>();
-		tdfWorkersByUs.add(jacek4Tdf);
-		tdfWorkersByUs.add(joasia4Tdf);
-		Assert.assertTrue(tdfWorkersByService.equals(tdfWorkersByUs));
-		/* now let's fire jacek from tdf */
-		service.deleteTvWorker(jacek4Tdf);
 		tdfWorkersByService = service.getTvWorkersFromTvStation(tdf);
-		tdfWorkersByUs.remove(jacek4Tdf);
 		Assert.assertTrue(tdfWorkersByService.equals(tdfWorkersByUs));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Worker fired successfully.");
 	}
 
 	@Test
@@ -153,6 +196,8 @@ public class TvWorldServiceTest {
 		service.addReportageToReporter(winnieReporter, reportage2);
 		service.addReportageToNews(news, reportage1);
 		service.addReportageToNews(news, reportage2);
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Modifying reportages of reporter collection succeeded.");
 		/*
 		 * <code>winnie</code> does work also as another worker while
 		 * <code>kanga</code> only produces reportages that are used in
@@ -168,6 +213,8 @@ public class TvWorldServiceTest {
 		newsWorkersByUs.add(pigletWorker);
 		newsWorkersByUs.add(eeyoreActor);
 		Assert.assertTrue(newsWorkersByService.equals(newsWorkersByUs));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Adding workers to TV production is ok.");
 		TvSeriesDTO tvSeries3 = service.createTvSeries("BGTHW12",
 				"Forest, Big Forest");
 		EpisodeDTO episode3_1_1 = service.createEpisode(tvSeries3, 1, 1);
@@ -190,6 +237,8 @@ public class TvWorldServiceTest {
 						Property.forName("id").eq(tvSeries3.getId())));
 		Assert.assertTrue(nonExistingTvSeries == null
 				|| nonExistingTvSeries.size() == 0);
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Adding and removing episodes from TV series works.");
 	}
 
 	@Test
@@ -212,6 +261,8 @@ public class TvWorldServiceTest {
 		reportersByUs.add(peReporter);
 		Set<ReporterDTO> reportersByService = getReportageAuthors(reportage1);
 		Assert.assertTrue(reportersByService.equals(reportersByUs));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Adding reportages to reporters works.");
 		/* now let's change the version */
 		reportage1.setContent(reportage1.getContent()
 				+ " A Ala nie ma kota, tylko psa.");
@@ -225,28 +276,44 @@ public class TvWorldServiceTest {
 				reportage1, versions.get(1));
 		Assert.assertTrue(reportage1.getContent().equals(
 				reportage1v2.getContent()));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Versioning reportages works.");
+	}
+
+	@Test
+	public void presentCurrentNews() {
 		NewsDTO fastNews = service.createNews("FastNEWS", 9);
-		service.addReportageToNews(fastNews, reportage1v2);
+		ReportageDTO reportage3 = service.createReportage("Quite wise one",
+				"What is it?");
+		service.addReportageToNews(fastNews, reportage3);
+		reportage3.setContent(reportage3.getContent() + " And that's end.");
+		service.updateReportage(reportage3);
 		Map<NewsDTO, Set<ReportageDTO>> news = service.presentAllNews();
 		Assert.assertTrue(news.containsKey(fastNews));
 		Set<ReportageDTO> reportagesByService = service
 				.getReportagesFromNews(fastNews);
 		Assert.assertTrue(reportagesByService.size() == 1
-				&& reportagesByService.contains(reportage1v2));
+				&& reportagesByService.contains(reportage3));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"Presenting current news reportages works.");
 	}
 
 	@SuppressWarnings("unused")
 	@Test
-	public void testSpecialMethods() {
+	public void testLongestByEpisode() {
 		TvSeriesDTO abc = service.createTvSeries("Abc1", "Abc");
 		TvSeriesDTO def = service.createTvSeries("Def1", "Def");
 		TvSeriesDTO ghi = service.createTvSeries("Ghi1", "Ghi");
 		EpisodeDTO abcEpisode1 = service.createEpisode(abc, 0, 0);
 		EpisodeDTO abcEpisode2 = service.createEpisode(abc, 0, 1);
 		EpisodeDTO abcEpisode3 = service.createEpisode(abc, 0, 2);
+		EpisodeDTO abcEpisode4 = service.createEpisode(abc, 0, 3);
+		EpisodeDTO abcEpisode5 = service.createEpisode(abc, 0, 4);
 		EpisodeDTO defEpisode1 = service.createEpisode(def, 1, 0);
 		EpisodeDTO defEpisode2 = service.createEpisode(def, 1, 9);
 		EpisodeDTO defEpisode3 = service.createEpisode(def, 1, 2);
+		EpisodeDTO defEpisode4 = service.createEpisode(def, 1, 3);
+		EpisodeDTO defEpisode5 = service.createEpisode(def, 1, 4);
 		EpisodeDTO ghiEpisode1 = service.createEpisode(ghi, 4, 19);
 		EpisodeDTO ghiEpisode2 = service.createEpisode(ghi, 14, 9);
 		List<TvSeriesDTO> longestByEpisodesByService = service
@@ -254,12 +321,16 @@ public class TvWorldServiceTest {
 		Assert.assertTrue(longestByEpisodesByService.size() == 2);
 		Assert.assertTrue(longestByEpisodesByService.contains(abc));
 		Assert.assertTrue(longestByEpisodesByService.contains(def));
-		List<TvSeriesDTO> longestBySeasonsByService = service
-				.getLongestBySeasonsTvSeries();
-		Assert.assertTrue(longestBySeasonsByService.size() == 1);
-		Assert.assertTrue(longestBySeasonsByService.contains(ghi));
+		LoggerFactory
+				.getLogger(TvWorldServiceTest.class)
+				.info("The longest tv series in respect to the number of episodes found.");
+	}
+
+	@Test
+	public void mostPopularNews() {
 		NewsDTO news1 = service.createNews("Newsy1", 9999999);
 		NewsDTO news2 = service.createNews("Newsy2", 9999999);
+		@SuppressWarnings("unused")
 		NewsDTO news3 = service.createNews("Newsy3", 999999);
 		NewsDTO news4 = service.createNews("Newsy4", 9999999);
 		List<NewsDTO> newsByService = service.getMostPopularNews();
@@ -267,6 +338,33 @@ public class TvWorldServiceTest {
 		Assert.assertTrue(newsByService.contains(news1));
 		Assert.assertTrue(newsByService.contains(news2));
 		Assert.assertTrue(newsByService.contains(news4));
+		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
+				"The most popular news found.");
+	}
+
+	@SuppressWarnings("unused")
+	@Test
+	public void testLongestBySeasons() {
+		TvSeriesDTO jkl = service.createTvSeries("jkl1", "jkl");
+		TvSeriesDTO mno = service.createTvSeries("mno1", "mno");
+		TvSeriesDTO pqr = service.createTvSeries("pqr1", "pqr");
+		EpisodeDTO jklEpisode1 = service.createEpisode(jkl, 0, 0);
+		EpisodeDTO jklEpisode2 = service.createEpisode(jkl, 0, 1);
+		EpisodeDTO jklEpisode3 = service.createEpisode(jkl, 0, 2);
+		EpisodeDTO mnoEpisode1 = service.createEpisode(mno, 1, 0);
+		EpisodeDTO mnoEpisode2 = service.createEpisode(mno, 1, 9);
+		EpisodeDTO mnoEpisode3 = service.createEpisode(mno, 1, 2);
+		EpisodeDTO pqrEpisode1 = service.createEpisode(pqr, 4, 19);
+		EpisodeDTO pqrEpisode2 = service.createEpisode(pqr, 14, 9);
+		EpisodeDTO pqrEpisode3 = service.createEpisode(pqr, 24, 19);
+		EpisodeDTO pqrEpisode4 = service.createEpisode(pqr, 114, 9);
+		List<TvSeriesDTO> longestBySeasonsByService = service
+				.getLongestBySeasonsTvSeries();
+		Assert.assertTrue(longestBySeasonsByService.size() == 1);
+		Assert.assertTrue(longestBySeasonsByService.contains(pqr));
+		LoggerFactory
+				.getLogger(TvWorldServiceTest.class)
+				.info("The longest tv series in respect to the number of seasons found.");
 	}
 
 	public Set<ReporterDTO> getReportageAuthors(ReportageDTO reportage) {

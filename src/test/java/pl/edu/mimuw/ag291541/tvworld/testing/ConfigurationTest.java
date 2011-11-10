@@ -78,9 +78,12 @@ public class ConfigurationTest {
 		sessionFactory.getCurrentSession().save(worker1);
 		LoggerFactory.getLogger(ConfigurationTest.class).info(
 				worker2.toString());
+		LoggerFactory.getLogger(ConfigurationTest.class).info("worker1 saved.");
 		sessionFactory.getCurrentSession().save(worker2);
 		sessionFactory.getCurrentSession().save(role1);
 		sessionFactory.getCurrentSession().save(role2);
+		LoggerFactory.getLogger(ConfigurationTest.class).info(
+				"It seems saving works.");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -134,6 +137,9 @@ public class ConfigurationTest {
 
 		tryToReopenTransaction();
 
+		LoggerFactory.getLogger(ConfigurationTest.class).info(
+				"Reportage 2 after updating.");
+
 		AuditReader auditReader = AuditReaderFactory.get(sessionFactory
 				.getCurrentSession());
 		List<Number> rep2revs = auditReader.getRevisions(Reportage.class,
@@ -148,6 +154,9 @@ public class ConfigurationTest {
 				rep2v1.getContent().equals(INITIAL_REPORTAGE2_CONTENT));
 		Assert.assertTrue("Second reportage revision has an invalid content.",
 				rep2v2.getContent().equals(SECOND_REPORTAGE2_CONTENT));
+
+		LoggerFactory.getLogger(ConfigurationTest.class).info(
+				"Reportage 2 versioning works.");
 	}
 
 	private void tryToReopenTransaction() {
