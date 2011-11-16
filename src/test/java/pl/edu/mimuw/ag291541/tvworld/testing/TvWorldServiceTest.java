@@ -1,5 +1,7 @@
 package pl.edu.mimuw.ag291541.tvworld.testing;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,9 +11,12 @@ import java.util.TreeSet;
 
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Property;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.edu.mimuw.ag291541.tvworld.entity.Actor;
@@ -41,318 +46,152 @@ import pl.edu.mimuw.ag291541.tvworld.service.TvWorldServiceFactory;
 
 public class TvWorldServiceTest {
 	private static TvWorldService service;
+	private static final DatabaseFixture fixture = DatabaseFixture
+			.getInstance();
+	private static final Logger logger = LoggerFactory
+			.getLogger(TvWorldServiceTest.class);
 
 	@BeforeClass
 	public static void obtainServiceObject() {
 		service = TvWorldServiceFactory.getInstance().getService();
 	}
 
+	@Before
+	public void loadTestData() {
+		fixture.loadTestData();
+	}
+
+	@After
+	public void clearDatabase() {
+		fixture.clearDatabase();
+	}
+
 	@Test
 	public void createAndRetrievePerson() {
-		final String johnnyName = "Johnny", johnnySurname = "Red", johnnyPesel = "AFGHIJK";
-		final String jamesName = "James", jamesSurname = "Tableboard", jamesPesel = "19121200007";
-		final int peopleNumber = 2;
-		final PersonDTO johnny = service.createPerson(johnnyName,
-				johnnySurname, johnnyPesel);
-		final PersonDTO james = service.createPerson(jamesName, jamesSurname,
-				jamesPesel);
-		final Long johnnyId = johnny.getId(), jamesId = james.getId();
-		final Set<Long> people = new TreeSet<Long>();
-		people.add(johnnyId);
-		people.add(jamesId);
-		final DetachedCriteria criteria = DetachedCriteria.forClass(
-				Person.class).add(Property.forName("id").in(people));
-		List<PersonDTO> persons = service.findPerson(criteria);
-		Assert.assertTrue(persons.size() == peopleNumber);
-		for (PersonDTO p : persons)
-			Assert.assertTrue(people.contains(p.getId()));
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Finding persons by criteria works.");
+		final String johnName = "John", johnSurname = "White", johnPesel = "1234";
+		PersonDTO john = service.createPerson(johnName, johnSurname, johnPesel);
+		PersonDTO retrievedJohn = getCurrentPerson(john);
+		assertTrue(retrievedJohn.equals(john));
+		logger.info("Creating persons works.");
 	}
 
 	@Test
 	public void updatePerson() {
-		final String anneName = "Anne", anneSurname = "Katalinsky", annePesel = "TYTYTYTUS";
-		final PersonDTO anne = service.createPerson(anneName, anneSurname,
-				annePesel);
-		Long anneId = anne.getId();
-		final List<PersonDTO> annes2 = service.findPerson(DetachedCriteria
-				.forClass(Person.class).add(Property.forName("id").eq(anneId)));
-		Assert.assertTrue(annes2.size() == 1
-				&& annes2.get(0).getId().equals(anneId));
-		final PersonDTO anne2 = annes2.get(0);
-		Assert.assertTrue(anne2.equals(anne));
-		final String anneNewSurname = anne.getSurname() + "-Bull";
-		anne.setSurname(anneNewSurname);
-		service.updatePerson(anne);
-		final List<PersonDTO> annes3 = service.findPerson(DetachedCriteria
-				.forClass(Person.class).add(
-						Property.forName("pesel").eq(annePesel)));
-		Assert.assertTrue(annes3.size() == 1);
-		final PersonDTO anne3 = annes3.get(0);
-		/* it is still the same person */
-		Assert.assertTrue(anne3.equals(anne));
-		/* though with a new surname */
-		Assert.assertTrue(anne3.getSurname().equals(anneNewSurname));
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Updating persons works.");
+		fixture.james.setName(fixture.james.getName() + "45");
+		service.updatePerson(fixture.james);
+		PersonDTO jamesByService = getCurrentPerson(fixture.james);
+		assertTrue(jamesByService.getName().equals(fixture.james.getName()));
+		logger.info("Updating persons works.");
 	}
 
 	@Test
 	public void deletePerson() {
-		PersonDTO julia = service.createPerson("Julia", "Mandelbrot",
-				"11111222223333");
-		DetachedCriteria getJulias = DetachedCriteria.forClass(Person.class)
-				.add(Property.forName("id").eq(julia.getId()));
-		List<PersonDTO> julias = service.findPerson(getJulias);
-		Assert.assertTrue(julias.size() == 1);
-		Assert.assertTrue(julias.get(0).equals(julia));
-		service.deletePerson(julia);
-		julias = service.findPerson(getJulias);
-		Assert.assertTrue(julias.size() == 0);
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Deleting persons works.");
+		service.deletePerson(fixture.johnny);
+		PersonDTO james2 = getCurrentPerson(fixture.johnny);
+		assertTrue(james2 == null);
+		logger.info("Deleting persons works.");
 	}
 
 	@Test
 	public void deleteTvWorker() {
-		PersonDTO zenek = service.createPerson("Zenek", "Mandelbrot", "445566");
-		TvStationDTO tdz = service.createTvStation("Telewizja dla Zenka");
-		TvWorkerDTO zenekWorker = service.createTvWorker(zenek, tdz);
-		DetachedCriteria getZenki = DetachedCriteria.forClass(TvWorker.class)
-				.add(Property.forName("identity.id").eq(zenek.getId()))
-				.add(Property.forName("employer.id").eq(tdz.getId()));
-		List<TvWorkerDTO> zenki = service.findTvWorker(getZenki);
-		Assert.assertTrue(zenki.size() == 1);
-		Assert.assertTrue(zenki.get(0).equals(zenekWorker));
-		service.deleteTvWorker(zenekWorker);
-		zenki = service.findTvWorker(getZenki);
-		Assert.assertTrue(zenki.size() == 0);
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Deleting TV workers works.");
+		service.deleteTvWorker(fixture.jamesWorker);
+		assertTrue(getCurrentTvWorker(fixture.jamesWorker) == null);
+		logger.info("Deleting TV workers works.");
 	}
 
 	@Test
 	public void findPersonsByCriteria() {
-		final String emilName = "Emil", emilSurname = "Red", emilPesel = "AFGHIJK123";
-		final String ulaName = "ula", ulaSurname = "Katalinsky", ulaPesel = "TYTYTYTUS123";
-		final String jurekName = "jurek", jurekSurname = "Tableboard", jurekPesel = "19121200007123";
-		final int peopleNumber = 3;
-		final PersonDTO emil = service.createPerson(emilName, emilSurname,
-				emilPesel);
-		final PersonDTO ula = service.createPerson(ulaName, ulaSurname,
-				ulaPesel);
-		final PersonDTO jurek = service.createPerson(jurekName, jurekSurname,
-				jurekPesel);
-		final Long emilId = emil.getId(), ulaId = ula.getId(), jurekId = jurek
-				.getId();
 		final Set<Long> people = new TreeSet<Long>();
-		people.add(emilId);
-		people.add(jurekId);
-		people.add(ulaId);
+		people.add(fixture.james.getId());
+		people.add(fixture.johnny.getId());
 		final DetachedCriteria criteria = DetachedCriteria.forClass(
 				Person.class).add(Property.forName("id").in(people));
 		List<PersonDTO> persons = service.findPerson(criteria);
-		Assert.assertTrue(persons.size() == peopleNumber);
+		Assert.assertTrue(persons.size() == people.size());
 		for (PersonDTO p : persons)
 			Assert.assertTrue(people.contains(p.getId()));
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Finding persons by criteria works.");
+		logger.info("Finding persons by criteria works.");
 	}
 
 	@Test
 	public void createAndRetrieveTvStation() {
-		TvStationDTO tdc = service.createTvStation("Telewizja dla Czerwonych");
-		List<TvStationDTO> stations = service.findTvStation(DetachedCriteria
-				.forClass(TvStation.class).add(
-						Property.forName("id").eq(tdc.getId())));
-		Assert.assertTrue(stations.size() == 1);
-		Assert.assertTrue(stations.get(0).equals(tdc));
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Creating TV station works.");
+		final String name = "NewTV";
+		TvStationDTO station = service.createTvStation(name);
+		TvStationDTO retrievedStation = getCurrentTvStation(station);
+		Assert.assertTrue(retrievedStation.equals(station));
+		logger.info("Creating TV station works.");
 	}
 
 	@Test
 	public void deleteTvStation() {
-		TvStationDTO tdp = service
-				.createTvStation("Telewizja dla Pomarańczowych");
-		DetachedCriteria getStations = DetachedCriteria.forClass(
-				TvStation.class).add(Property.forName("id").eq(tdp.getId()));
-		List<TvStationDTO> stations = service.findTvStation(getStations);
-		Assert.assertTrue(stations.size() == 1);
-		Assert.assertTrue(stations.get(0).equals(tdp));
-		service.deleteTvStation(tdp);
-		stations = service.findTvStation(getStations);
-		Assert.assertTrue(stations == null || stations.size() == 0);
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Deleting TV stations works.");
+		service.deleteTvStation(fixture.unusedStation);
+		assertTrue(getCurrentTvStation(fixture.unusedStation) == null);
+		logger.info("Deleting TV stations works.");
 	}
 
 	@Test
 	public void deleteTvProduction() {
-		NewsDTO news = service.createNews("NextNEWS");
-		service.deleteTvProduction(news);
-		List<TvProductionDTO> productions = service
-				.findTvProduction(DetachedCriteria.forClass(TvProduction.class)
-						.add(Property.forName("id").eq(news.getId())));
-		Assert.assertTrue(productions == null | productions.size() == 0);
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Deleting TV productions works.");
+		service.deleteTvProduction(fixture.forestTheGreat);
+		assertTrue(getCurrentTvProduction(fixture.forestTheGreat) == null);
+		logger.info("Deleting TV productions works.");
 	}
 
 	@Test
 	public void deleteReporter() {
-		PersonDTO krzysztof = service.createPerson("Krzysztof", "Długi",
-				"8171276876123");
-		TvStationDTO tdr = service.createTvStation("Telewizja dla Różowych");
-		ReporterDTO krzysztofReporter = service.createReporter(krzysztof,
-				ReporterSpeciality.WILDLIFE, tdr);
-		DetachedCriteria getKrzysztofReporter = DetachedCriteria
-				.forClass(Reporter.class)
-				.add(Property.forName("identity.id").eq(
-						krzysztofReporter.getIdentity().getId()))
-				.add(Property.forName("employer.id").eq(
-						krzysztofReporter.getEmployer().getId()));
-		List<ReporterDTO> reporters = service
-				.findReporter(getKrzysztofReporter);
-		Assert.assertTrue(reporters.size() == 1);
-		Assert.assertTrue(reporters.get(0).equals(krzysztofReporter));
-		service.deleteReporter(krzysztofReporter);
-		reporters = service.findReporter(getKrzysztofReporter);
-		Assert.assertTrue(reporters == null || reporters.size() == 0);
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Deleting reporters is ok.");
+		service.deleteReporter(fixture.winnieReporter);
+		assertTrue(getCurrentReporter(fixture.winnieReporter) == null);
+		logger.info("Deleting reporters is ok.");
 	}
 
 	@Test
 	public void updateReporter() {
-		PersonDTO jakub = service.createPerson("Jakub", "Długi",
-				"8171276876124");
-		TvStationDTO tdr = service.createTvStation("Telewizja dla Rybaków");
-		ReporterSpeciality jakubSpecialityFirst = ReporterSpeciality.TALK_SHOW;
-		ReporterSpeciality jakubSpecialitySecond = ReporterSpeciality.MUSIC;
-		ReporterDTO jakubReporter = service.createReporter(jakub,
-				jakubSpecialityFirst, tdr);
-		jakubReporter.setSpeciality(jakubSpecialitySecond);
-		service.updateReporter(jakubReporter);
-		DetachedCriteria getJakubReporter = DetachedCriteria
-				.forClass(Reporter.class)
-				.add(Property.forName("identity.id").eq(
-						jakubReporter.getIdentity().getId()))
-				.add(Property.forName("employer.id").eq(
-						jakubReporter.getEmployer().getId()));
-		List<ReporterDTO> reporters = service.findReporter(getJakubReporter);
-		Assert.assertTrue(reporters.size() == 1);
-		Assert.assertTrue(reporters.get(0).equals(jakubReporter));
-		Assert.assertTrue(reporters.get(0).getSpeciality()
-				.equals(jakubReporter.getSpeciality()));
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Updating reporters is ok.");
+		fixture.winnieReporter.setSpeciality(ReporterSpeciality.DOCUMENTARY);
+		service.updateReporter(fixture.winnieReporter);
+		assertTrue(getCurrentReporter(fixture.winnieReporter).getSpeciality()
+				.equals(fixture.winnieReporter.getSpeciality()));
+		logger.info("Updating reporters is ok.");
 	}
 
 	@Test
 	public void deleteActor() {
-		PersonDTO jan = service.createPerson("Jan", "Długi", "81712768761234");
-		TvStationDTO tdr = service.createTvStation("Telewizja dla Rzeczników");
-		ActorDTO janActor = service.createActor(jan, ActorRating.HOPELESS, tdr);
-		DetachedCriteria getJanReporter = DetachedCriteria
-				.forClass(Actor.class)
-				.add(Property.forName("identity.id").eq(
-						janActor.getIdentity().getId()))
-				.add(Property.forName("employer.id").eq(
-						janActor.getEmployer().getId()));
-		List<ActorDTO> actors = service.findActor(getJanReporter);
-		Assert.assertTrue(actors.size() == 1);
-		Assert.assertTrue(actors.get(0).equals(janActor));
-		service.deleteActor(janActor);
-		actors = service.findActor(getJanReporter);
-		Assert.assertTrue(actors == null || actors.size() == 0);
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Deleting actors is ok.");
+		service.deleteActor(fixture.eeyoreActor);
+		assertTrue(getCurrentActor(fixture.eeyoreActor) == null);
+		logger.info("Deleting actors is ok.");
 	}
 
 	@Test
 	public void updateActor() {
-		PersonDTO henryk = service.createPerson("Henryk", "Długi",
-				"81712768761245");
-		TvStationDTO tdr = service.createTvStation("Telewizja dla Ręczników");
-		ActorRating henrykRatingFirst = ActorRating.SATISFYING;
-		ActorRating henrykRatingSecond = ActorRating.EXCELLENT;
-		ActorDTO henrykActor = service.createActor(henryk, henrykRatingFirst,
-				tdr);
-		henrykActor.setRating(henrykRatingSecond);
-		service.updateActor(henrykActor);
-		DetachedCriteria getHenrykActor = DetachedCriteria
-				.forClass(Actor.class)
-				.add(Property.forName("identity.id").eq(
-						henrykActor.getIdentity().getId()))
-				.add(Property.forName("employer.id").eq(
-						henrykActor.getEmployer().getId()));
-		List<ActorDTO> actors = service.findActor(getHenrykActor);
-		Assert.assertTrue(actors.size() == 1);
-		Assert.assertTrue(actors.get(0).equals(henrykActor));
-		Assert.assertTrue(actors.get(0).getRating()
-				.equals(henrykActor.getRating()));
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Updating actors is ok.");
+		fixture.eeyoreActor.setRating(ActorRating.GOOD);
+		service.updateActor(fixture.eeyoreActor);
+		assertTrue(getCurrentActor(fixture.eeyoreActor).getRating().equals(
+				fixture.eeyoreActor.getRating()));
+		logger.info("Updating actors is ok.");
 	}
 
 	@Test
 	public void deleteNews() {
-		NewsDTO news = service.createNews("Newsy do usunięcia");
-		DetachedCriteria getNews = DetachedCriteria.forClass(News.class).add(
-				Property.forName("id").eq(news.getId()));
-		List<NewsDTO> newses = service.findNews(getNews);
-		Assert.assertTrue(newses.size() == 1);
-		Assert.assertTrue(newses.get(0).equals(news));
-		service.deleteNews(news);
-		newses = service.findNews(getNews);
-		Assert.assertTrue(newses == null || newses.size() == 0);
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Deleting news is ok.");
+		service.deleteNews(fixture.latestNews);
+		assertTrue(getCurrentNews(fixture.latestNews) == null);
+		logger.info("Deleting news is ok.");
 	}
 
 	@SuppressWarnings("deprecation")
 	@Test
 	public void updateNews() {
-		NewsDTO news = service.createNews("Newsy do modyfikacji");
-		DetachedCriteria getNews = DetachedCriteria.forClass(News.class).add(
-				Property.forName("id").eq(news.getId()));
-		news.getAiringDate().add(new Date(2010, 12, 10));
-		news.setAudience(new ArrayList<Long>());
-		news.getAudience().add(45l);
-		service.updateNews(news);
-		List<NewsDTO> newses = service.findNews(getNews);
-		Assert.assertTrue(newses.size() == 1);
-		NewsDTO newsByService = newses.get(0);
-		Assert.assertTrue(newsByService.equals(news));
-		Assert.assertTrue(newsByService.getAiringDate().equals(
-				news.getAiringDate()));
-		Assert.assertTrue(newsByService.getAudience()
-				.equals(news.getAudience()));
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Updating news is ok.");
+		fixture.latestNews.getAiringDate().add(new Date(2009, 7, 1));
+		service.updateNews(fixture.latestNews);
+		assertTrue(getCurrentNews(fixture.latestNews).getAiringDate().equals(
+				fixture.latestNews.getAiringDate()));
+		logger.info("Updating news is ok.");
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
 	public void updateTvSeries() {
-		TvSeriesDTO ts = service.createTvSeries("Produkcja dębowa",
-				"Serial DĄB");
-		ts.setTitle("Serial AKACJA");
-		ts.getAiringDate().add(new Date(2012, 1, 1, 1, 1, 1));
-		ts.getAiringDate().add(new Date(2011, 1, 1, 1, 1, 1));
-		service.updateTvSeries(ts);
-		DetachedCriteria getTvSeries = DetachedCriteria
-				.forClass(TvSeries.class).add(
-						Property.forName("id").eq(ts.getId()));
-		List<TvSeriesDTO> tvSerieses = service.findTvSeries(getTvSeries);
-		Assert.assertTrue(tvSerieses.size() == 1);
-		TvSeriesDTO tsByService = tvSerieses.get(0);
-		Assert.assertTrue(ts.equals(tsByService));
-		Assert.assertTrue(ts.getTitle().equals(tsByService.getTitle()));
-		Assert.assertTrue(ts.getAiringDate()
-				.equals(tsByService.getAiringDate()));
+		fixture.hefalumps.setTitle(fixture.hefalumps.getTitle() + " 2");
+		service.updateTvSeries(fixture.hefalumps);
+		assertTrue(getCurrentTvSeries(fixture.hefalumps).getTitle().equals(
+				fixture.hefalumps.getTitle()));
+		logger.info("Updating TvSeries works.");
 	}
 
 	/**
@@ -361,33 +200,16 @@ public class TvWorldServiceTest {
 	 */
 	@Test(expected = RuntimeException.class)
 	public void deleteReportageAssociatedWithNews() {
-		NewsDTO news = service
-				.createNews("Newsy do usunięcia reportażu z nich");
-		ReportageDTO reportage = service.createReportage("R1",
-				"Abcsdefghijklmnop");
-		service.addReportageToNews(news, reportage);
-		Set<ReportageDTO> newsReportages = service.getReportagesFromNews(news);
-		Assert.assertTrue(newsReportages.size() == 1);
-		Assert.assertTrue(newsReportages.contains(reportage));
-		service.deleteReportage(reportage);
-		newsReportages = service.getReportagesFromNews(news);
-		Assert.assertTrue(newsReportages == null || newsReportages.size() == 0);
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Deleting reportages is ok.");
+		service.deleteReportage(fixture.greenApplesReportage);
+		assertTrue(false);
+		logger.error("Deleting reportage contained by news succeeded!");
 	}
 
 	@Test
 	public void deleteEpisode() {
-		TvSeriesDTO tvSeries = service.createTvSeries("Produkcja ASDAGSDFA",
-				"12098324");
-		EpisodeDTO e = service.createEpisode(tvSeries, 1, 34);
-		service.deleteEpisode(e);
-		DetachedCriteria getEpisode = DetachedCriteria.forClass(Episode.class)
-				.add(Property.forName("id").eq(e.getId()));
-		List<EpisodeDTO> episodes = service.findEpisode(getEpisode);
-		Assert.assertTrue(episodes == null || episodes.size() == 0);
-		LoggerFactory.getLogger(TvWorldServiceTest.class).info(
-				"Deleting episodes is ok.");
+		service.deleteEpisode(fixture.lastEpisode);
+		assertTrue(getCurrentEpisode(fixture.lastEpisode) == null);
+		logger.info("Deleting episodes is ok.");
 	}
 
 	@Test
@@ -763,6 +585,87 @@ public class TvWorldServiceTest {
 		LoggerFactory
 				.getLogger(TvWorldServiceTest.class)
 				.info("The longest tv series in respect to the number of seasons found.");
+	}
+
+	private PersonDTO getCurrentPerson(PersonDTO dto) {
+		List<PersonDTO> persons = service.findPerson(createGetByIdCriteria(
+				Person.class, dto.getId()));
+		return pullUnique(persons);
+	}
+
+	private TvWorkerDTO getCurrentTvWorker(TvWorkerDTO dto) {
+		List<TvWorkerDTO> workers = service.findTvWorker(DetachedCriteria
+				.forClass(TvWorker.class)
+				.add(Property.forName("identity.id").eq(
+						dto.getIdentity().getId()))
+				.add(Property.forName("employer.id").eq(
+						dto.getEmployer().getId())));
+		return pullUnique(workers);
+	}
+
+	private ReporterDTO getCurrentReporter(ReporterDTO dto) {
+		List<ReporterDTO> reporters = service.findReporter(DetachedCriteria
+				.forClass(Reporter.class)
+				.add(Property.forName("identity.id").eq(
+						dto.getIdentity().getId()))
+				.add(Property.forName("employer.id").eq(
+						dto.getEmployer().getId())));
+		return pullUnique(reporters);
+	}
+
+	private ActorDTO getCurrentActor(ActorDTO dto) {
+		List<ActorDTO> actors = service.findActor(DetachedCriteria
+				.forClass(Actor.class)
+				.add(Property.forName("identity.id").eq(
+						dto.getIdentity().getId()))
+				.add(Property.forName("employer.id").eq(
+						dto.getEmployer().getId())));
+		return pullUnique(actors);
+	}
+
+	private TvStationDTO getCurrentTvStation(TvStationDTO dto) {
+		List<TvStationDTO> stations = service
+				.findTvStation(createGetByIdCriteria(TvStation.class,
+						dto.getId()));
+		return pullUnique(stations);
+	}
+
+	private TvProductionDTO getCurrentTvProduction(TvProductionDTO dto) {
+		List<TvProductionDTO> productions = service
+				.findTvProduction(createGetByIdCriteria(TvProduction.class,
+						dto.getId()));
+		return pullUnique(productions);
+	}
+
+	private NewsDTO getCurrentNews(NewsDTO dto) {
+		List<NewsDTO> news = service.findNews(createGetByIdCriteria(News.class,
+				dto.getId()));
+		return pullUnique(news);
+	}
+
+	private TvSeriesDTO getCurrentTvSeries(TvSeriesDTO dto) {
+		List<TvSeriesDTO> tvSeries = service
+				.findTvSeries(createGetByIdCriteria(TvSeries.class, dto.getId()));
+		return pullUnique(tvSeries);
+	}
+
+	private EpisodeDTO getCurrentEpisode(EpisodeDTO dto) {
+		List<EpisodeDTO> episodes = service.findEpisode(createGetByIdCriteria(
+				Episode.class, dto.getId()));
+		return pullUnique(episodes);
+	}
+
+	private <T> T pullUnique(List<T> list) {
+		assertTrue(list == null || list.size() <= 1);
+		if (list != null && list.size() == 1)
+			return list.get(0);
+		else
+			return null;
+	}
+
+	private DetachedCriteria createGetByIdCriteria(Class entityClass, Long id) {
+		return DetachedCriteria.forClass(entityClass).add(
+				Property.forName("id").eq(id));
 	}
 
 	private Set<ReporterDTO> getReportageAuthors(ReportageDTO reportage) {
